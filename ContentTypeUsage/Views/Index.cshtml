@@ -1,0 +1,567 @@
+﻿@using EPiServer.Shell.Web.Mvc.Html;
+@using EPiServer.Framework.Web.Resources
+@using ContentTypeUsage.ViewModels;
+
+@inherits System.Web.Mvc.WebViewPage<ContentTypeUsageViewModels>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+    <head>
+        <title>@Page.Title</title>
+
+        <!-- Mimic Internet Explorer 9 -->
+        <meta http-equiv="x-ua-compatible" content="IE=9">
+
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.2/chosen.min.css" type="text/css" rel="stylesheet" />
+
+        @Html.Raw(ClientResources.RenderResources("Dojo", new[] { ClientResourceType.Style }))
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
+        @Html.Raw(ClientResources.RenderResources("ShellCore", new[] { ClientResourceType.Style }))
+        @Html.Raw(ClientResources.RenderResources("ShellCoreLightTheme"))
+
+        <link href="~/App_Themes/Default/Styles/system.css" type="text/css" rel="stylesheet" />
+        <link href="~/App_Themes/Default/Styles/ToolButton.css" type="text/css" rel="stylesheet" />
+
+        <script src="/EPiServer/CMS/javascript/system.aspx" type="text/javascript"></script>
+        <script src="~/Util/javascript/episerverscriptmanager.js" type="text/javascript"></script>
+        <script src="~/EPiServer/CMS/javascript/system.js" type="text/javascript"></script>
+        <script src="~/EPiServer/CMS/javascript/dialog.js" type="text/javascript"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.2/chosen.jquery.min.js" type="text/javascript"></script>
+
+        <script type="text/javascript">
+
+            // The following scripts will not work on IE11 (default mode 5 in EPiServer Admin)
+            // This is not a plugin's issue, but rather an issue of EPiServer CMS Admin mode
+            // This bug will not be fixed by CMS core team as IE11 is over 4 years old
+
+            $(document).ready(function () {
+                var IEVersion = GetIEVersion();
+                if (GetIEVersion() != 8) {
+                    loadjscssfile("https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@1.5.4/src/loadingoverlay.min.js", "js");
+                    loadjscssfile("https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@1.5.4/extras/loadingoverlay_progress/loadingoverlay_progress.min.js", "js");
+                }
+            });
+
+            function GetIEVersion() {
+                var sAgent = window.navigator.userAgent;
+                var Idx = sAgent.indexOf("MSIE");
+
+                // If IE, return version number.
+                if (Idx > 0)
+                    return parseInt(sAgent.substring(Idx + 5, sAgent.indexOf(".", Idx)));
+
+                // If IE 11 then look for Updated user agent string.
+                else if (!!navigator.userAgent.match(/Trident\/7\./))
+                    return 11;
+
+                else
+                    return 0; //It is not IE
+            }
+
+            // Load js file dynamically
+            function loadjscssfile(filename, filetype) {
+                if (filetype == "js") { //if filename is a external JavaScript file
+                    var fileref = document.createElement('script')
+                    fileref.setAttribute("type", "text/javascript")
+                    fileref.setAttribute("src", filename)
+                }
+                else if (filetype == "css") { //if filename is an external CSS file
+                    var fileref = document.createElement("link")
+                    fileref.setAttribute("rel", "stylesheet")
+                    fileref.setAttribute("type", "text/css")
+                    fileref.setAttribute("href", filename)
+                }
+                if (typeof fileref != "undefined")
+                    document.getElementsByTagName("head")[0].appendChild(fileref)
+            }
+
+            // Javascript string format
+            String.prototype.format = String.prototype.f = function () {
+                var s = this,
+                    i = arguments.length;
+
+                while (i--) {
+                    s = s.replace(new RegExp('\\{' + i + '\\}', 'gm'), arguments[i]);
+                }
+                return s;
+            };
+
+            // Page size for the paging parameters
+        var pageSize = 10;
+
+        $(document).ready(function () {
+
+            // Initialize jquery chosen plugin
+            $('select[name="ContentType"]').chosen();
+
+            // Handle click event of filter button
+            $("#btnFilter").click(function (evt) {
+                evt.preventDefault();
+
+                var contentTypeId = $('select[name="ContentType"]').val();
+                var contentTypeName = $('select[name="ContentType"] option:selected').text();
+
+                $('#hidSelectedContentTypeId').val(contentTypeId);
+                $('#hidSelectedContentTypeName').val(contentTypeName);
+
+                $('#divContentInstances').show();
+
+                clearContentInstancesSearch();
+
+                retrieveContentInstances(1);
+            })
+
+            // Handle click event of search button on Content Instances table
+            $("#btnContentInstancesSearch").click(function (evt) {
+                evt.preventDefault();
+
+                $("#txtContentInstancesSearch").val($.trim($("#txtContentInstancesSearch").val()));
+                $('#hidContentInstancesSearchKeyword').val($("#txtContentInstancesSearch").val());
+
+                retrieveContentInstances(1);
+            })
+
+            // Handle click event of search button on Content References table
+            $("#btnContentReferencesSearch").click(function (evt) {
+                evt.preventDefault();
+
+                $("#txtContentReferencesSearch").val($.trim($("#txtContentReferencesSearch").val()));
+                $('#hidContentReferencesSearchKeyword').val($("#txtContentReferencesSearch").val());
+
+                var blockId = $("#hidSelectedBlockId").val();
+
+                retrieveContentReferences(blockId, 1);
+            })
+
+            // Handle enter key event of search text box on Content Instances table
+            $('#txtContentInstancesSearch').keypress(function (e) {
+                if (e.which == 13) {//Enter key pressed
+                    $('#btnContentInstancesSearch').click();//Trigger search button click event
+                }
+            });
+
+            // Handle enter key event of search text box on Content References table
+            $('#txtContentReferencesSearch').keypress(function (e) {
+                if (e.which == 13) {//Enter key pressed
+                    $('#btnContentReferencesSearch').click();//Trigger search button click event
+                }
+            });
+
+        });
+
+        // Handle click event of the pager of content instance table
+        function contentInstancesPagerClick(evt, page)
+        {
+            (evt.preventDefault) ? evt.preventDefault() : evt.returnValue = false;
+            retrieveContentInstances(page);
+        }
+
+        // Handle click event of the pager of content reference table
+        function contentReferencesPagerClick(evt, blockId, page) {
+            (evt.preventDefault) ? evt.preventDefault() : evt.returnValue = false;
+            retrieveContentReferences(blockId, page);
+        }
+
+        // Perform Ajax request to retrieve a single page of Content Instances table
+        function retrieveContentInstances(page)
+        {
+            // Load instance of selected content type
+            var contentTypeId = $('#hidSelectedContentTypeId').val();
+            var contentTypeName = $('#hidSelectedContentTypeName').val();
+            var searchKeyword = $('#hidContentInstancesSearchKeyword').val();
+
+            if ($('#divMainArea').LoadingOverlay != undefined) {
+                $('#divMainArea').LoadingOverlay("show");
+            }
+            else {
+                $('#mainAreaLoader').show();
+            }
+
+            $.ajax({
+                type: "GET",
+                url: "/custom-plugins/content-type-usage/GetInstances?contentTypeId=" + contentTypeId + "&page=" + page + "&pageSize=" + pageSize + (searchKeyword != '' ? '&query=' + searchKeyword : ''),
+                dataType: "json",
+                success: function (response) {
+                    if($('#divMainArea').LoadingOverlay != undefined) {
+                        $('#divMainArea').LoadingOverlay("hide", true);
+                    }
+                    else {
+                        $('#mainAreaLoader').hide();
+                    }
+
+                    // Empty listing table & repopulate with Json data
+                    var table = $("#tblContentInstances > tbody");
+                    table.find("tr:gt(0)").remove();
+
+                    if (response.status) {
+                        for (var i = 0; i < response.items.length; i++) {
+                            var row = '<tr><td>' + response.items[i].Id + '</td><td>' + response.items[i].Name + '</td><td>';
+                            if (response.items[i].ViewLink != undefined)
+                            {
+                                row += '<a href="' + response.items[i].ViewLink + '" target="_blank" title="@Html.Translate("/plugins/contenttypeusage/viewTooltip")">@Html.Translate("/plugins/contenttypeusage/view")</a> &nbsp;';
+                            }
+
+                            if (response.items[i].EditLink != undefined) {
+                                row += '<a href="' + response.items[i].EditLink + '" target="_blank" title="@Html.Translate("/plugins/contenttypeusage/editTooltip")">@Html.Translate("/plugins/contenttypeusage/edit")</a> &nbsp';
+                            }
+
+                            if (response.items[i].IsBlockType)
+                            {
+                                row += '<a href="#" onclick="viewBlockReferences(event, ' + response.items[i].Id + ', \'' + response.items[i].Name.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0') + '\');" title="@Html.Translate("/plugins/contenttypeusage/referencesTooltip")">@Html.Translate("/plugins/contenttypeusage/references")</a> &nbsp';
+                            }
+
+                            row += '</td></tr>'
+                            table.append(row);
+                        }
+
+                        // Add the pager row
+                        table.append(constructPager(response.page, response.total, 'contentInstancesPagerClick'));
+
+                        if (searchKeyword == '')
+                            $('#spnContentInstancesSuggestion').html('@Html.Raw(Html.Translate("/plugins/contenttypeusage/contentInstanceSuggestions"))'.format(response.total, contentTypeName));
+                        else
+                            $('#spnContentInstancesSuggestion').html('@Html.Raw(Html.Translate("/plugins/contenttypeusage/searchSuggestions"))'.format(searchKeyword, response.total));
+
+                        $('#spnContentInstancesItemCount').html('@Html.Raw(Html.Translate("/plugins/contenttypeusage/itemsCount"))'.format((page - 1) * pageSize + 1 <= response.total ? (page - 1) * pageSize + 1 : response.total, page * pageSize <= response.total ? page * pageSize : response.total, response.total));
+                    }
+                    else {
+                        alert(response.message);
+                    }
+                }
+            });
+        }
+
+        // Perform Ajax request to retrieve a single page of Content References table
+        function retrieveContentReferences(blockId, page) {
+            var searchKeyword = $('#hidContentReferencesSearchKeyword').val();
+            if ($('#divModalContent').LoadingOverlay != undefined) {
+                $("#divModalContent").LoadingOverlay("show");
+            }
+            else {
+                $('#secondAreaLoader').show();
+            }
+            $.ajax({
+                type: "GET",
+                url: "/custom-plugins/content-type-usage/GetReferences?blockId=" + blockId + "&page=" + page + "&pageSize=" + pageSize + (searchKeyword != '' ? "&query=" + searchKeyword : ''),
+                dataType: "json",
+                success: function (response) {
+                    if ($('#divModalContent').LoadingOverlay != undefined) {
+                        $("#divModalContent").LoadingOverlay("hide", true);
+                    }
+                    else {
+                        $('#secondAreaLoader').hide();
+                    }
+
+                    // Empty listing table & repopulate with Json data
+                    var table = $("#tblContentReferences > tbody");
+                    table.find("tr:gt(0)").remove();
+
+                    if (response.status) {
+                        for (var i = 0; i < response.items.length; i++) {
+                            var row = '<tr><td>' + response.items[i].Id + '</td><td>' + response.items[i].Name + '</td><td>';
+                            if (response.items[i].ViewLink != undefined) {
+                                row += '<a href="' + response.items[i].ViewLink + '" target="_blank" title="@Html.Translate("/plugins/contenttypeusage/viewTooltip")">@Html.Translate("/plugins/contenttypeusage/view")</a> &nbsp;';
+                            }
+
+                            if (response.items[i].EditLink != undefined) {
+                                row += '<a href="' + response.items[i].EditLink + '" target="_blank" title="@Html.Translate("/plugins/contenttypeusage/editTooltip")">@Html.Translate("/plugins/contenttypeusage/edit")</a> &nbsp';
+                            }
+
+                            row += '</td></tr>'
+                            table.append(row);
+                        }
+
+                        // Add the pager row
+                        table.append(constructPager(response.page, response.total, 'contentReferencesPagerClick'));
+
+                        if (searchKeyword == '')
+                            $('#spnContentReferencesSuggestion').html('@Html.Raw(Html.Translate("/plugins/contenttypeusage/contentReferencesSuggestions"))'.format(response.total));
+                        else
+                            $('#spnContentReferencesSuggestion').html('@Html.Raw(Html.Translate("/plugins/contenttypeusage/searchSuggestions"))'.format(searchKeyword, response.total));
+
+                        $('#spnContentReferencesItemCount').html('@Html.Raw(Html.Translate("/plugins/contenttypeusage/itemsCount"))'.format((page - 1) * pageSize + 1 <= response.total ? (page - 1) * pageSize + 1 : response.total, page * pageSize <= response.total ? page * pageSize : response.total, response.total));
+                    }
+                    else {
+                        alert(response.message);
+                    }
+                }
+            });
+        }
+
+        // Show the modal dialog to display list of content references when user click on References link of a block instance.
+        function viewBlockReferences(event, blockId, blockName) {
+            (event.preventDefault) ? event.preventDefault() : event.returnValue = false;
+
+            $("#modalHeader").html('@Html.Raw(Html.Translate("/plugins/contenttypeusage/modalDialogHeader"))'.format(blockName, blockId));
+            $("#hidSelectedBlockId").val(blockId);
+
+            // Empty table content references & show the modal dialog
+            var table = $("#tblContentReferences > tbody");
+            table.find("tr:gt(0)").remove();
+            clearContentReferencesSearch();
+            $("#modalDataView").modal("show");
+
+            retrieveContentReferences(blockId, 1);
+        }
+
+        // Clear search keyword of content instances table
+        function clearContentInstancesSearch()
+        {
+            $("#txtContentInstancesSearch").val('');
+            $('#hidContentInstancesSearchKeyword').val('');
+        }
+
+        // Clear search keyword of content references table
+        function clearContentReferencesSearch()
+        {
+            $("#txtContentReferencesSearch").val('');
+            $('#hidContentReferencesSearchKeyword').val('');
+        }
+
+        // Construct pager row at the end of the table
+        function constructPager(page, total, pagingAction)
+        {
+            var isReferencesPager = false;
+            var blockId = $('#hidSelectedBlockId').val();
+            if (pagingAction == 'contentReferencesPagerClick')
+            {
+                isReferencesPager = true;
+            }
+
+            var markup = '<tr class="epipager" id="pagerRow"><td colspan="3">';
+
+            var totalPage = Math.ceil(total / pageSize);
+
+            var roundUp = Math.ceil(page / 10);
+
+            var roundDown = (page % 10 != 0) ? Math.floor(page / 10) : (page / 10) - 1;
+
+            // Show last section indicator if current page is greater than 10
+            if (page > 10)
+            {
+                var lastSectionLink = '<a href="#" onclick="' + pagingAction + '(event, ';
+                if (isReferencesPager) {
+                    lastSectionLink += blockId + ', ';
+                }
+                lastSectionLink += (roundDown * 10) + ', ' + pageSize + ')">...</a> &nbsp;';
+                markup += lastSectionLink;
+            }
+
+            var stoppingPoint = 0;
+            if (totalPage <= roundUp * 10)
+                stoppingPoint = totalPage;
+            else
+                stoppingPoint = roundUp * 10;
+
+            // List the current 10 pages segment
+            for (var i = roundDown * 10 + 1; i <= stoppingPoint; i++)
+            {
+                var pageLink = '';
+                if (i == page)
+                {
+                    pageLink = '<span>' + page + '</span> &nbsp;';
+                    markup += pageLink;
+                    continue;
+                }
+
+                pageLink = '<a href="#" onclick="' + pagingAction + '(event, ';
+                if (isReferencesPager) {
+                    pageLink += blockId + ', ';
+                }
+                pageLink += i + ', ' + pageSize + ')">' + i + '</a> &nbsp;';
+
+                markup += pageLink;
+            }
+
+            // Show next indicator if total page is greater than round up of current page (round to a number divisible by 10)
+
+            if (totalPage > roundUp * 10)
+            {
+                var nextSectionLink = '<a href="#" onclick="' + pagingAction + '(event, ';
+                if (isReferencesPager) {
+                    nextSectionLink += blockId + ', ';
+                }
+                nextSectionLink += (roundUp * 10 + 1) + ', ' + pageSize + ')">...</a> &nbsp;'
+                markup += nextSectionLink;
+            }
+
+            markup += '</td></tr>';
+            return markup;
+        }
+        </script>
+
+        <style>
+            /*Style for loading overlay div in IE7*/
+            .loading {
+                margin: 0 0 0 0;
+                position: absolute;
+                z-index: 2;
+                border: 1px solid #000;
+                height: 50%;
+                width: 50%;
+                /* RGBa with 0.6 opacity */
+                background: rgba(0, 0, 0, 0.6);
+                /* For IE 5.5 - 7*/
+                filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+                /* For IE 8*/
+                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+                top: 0px;
+                left: 0px;
+                height: 100%;
+                width: 100%;
+            }
+
+            /*Style for loading overlay image in IE7*/
+            .loading img {
+                position: absolute;
+                top: 50%; /* Move the image down, so its top is half way down the container */
+                margin-top: -16px; /* Move the image back up half its height */
+                left: 50%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="epi-contentContainer epi-padding">
+            <div class="epi-contentArea">
+                <h1 class="EP-prefix">@Html.Translate("/plugins/contenttypeusage/displayName")</h1>
+                <p class="EP-systemInfo">
+                    @Html.Translate("/plugins/contenttypeusage/description")
+                </p>
+            </div>
+
+            <div class="epi-formArea epi-paddingVertical-small" id="divMainArea">
+                <div class="epi-size15">
+                    <div>
+                        <label for="ddlContentType">@Html.Translate("/plugins/contenttypeusage/contenttype")</label>
+                        <select class="EP-requiredField required" id="ddlContentType" name="ContentType">
+                            <optgroup label="@Html.Translate("/admin/menuheadings/pagetypes")">
+                                @foreach (var item in Model.AllPageTypes)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </optgroup>
+                            <optgroup label="@Html.Translate("/admin/menuheadings/blocktypes")">
+                                @foreach (var item in Model.AllBlockTypes)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </optgroup>
+                        </select>
+
+                        <input type="hidden" id="hidSelectedContentTypeId" />
+                        <input type="hidden" id="hidSelectedContentTypeName" />
+                        <span class="epi-cmsButton">
+                            <input class="epi-cmsButton-text epi-cmsButton-tools epi-cmsButton-ArrowRight" type="button"
+                                   name="btnFilter" id="btnFilter"
+                                   value="@Html.Translate("/plugins/contenttypeusage/filter")" title="@Html.Translate("/plugins/contenttypeusage/filter")"
+                                   onmouseover="EPi.ToolButton.MouseDownHandler(this)"
+                                   onmouseout="EPi.ToolButton.ResetMouseDownHandler(this)">
+                        </span>
+                    </div>
+                    <div class="epi-indent">
+                        <br /><br />
+                    </div>
+                </div>
+
+                <div id="divContentInstances" style="display:none;">
+                    <div style="float:right" class="epi-size15">
+                        <input name="txtContentInstancesSearch" type="text" id="txtContentInstancesSearch" class="EP-requiredField">
+                        <input type="hidden" id="hidContentInstancesSearchKeyword" />
+                        <span class="epi-cmsButton" style="margin-right: 0px !important;">
+                            <input class="epi-cmsButton-text epi-cmsButton-tools epi-cmsButton-Search" type="button"
+                                   name="btnContentInstancesSearch" id="btnContentInstancesSearch"
+                                   value="@Html.Translate("/plugins/contenttypeusage/search")" title="@Html.Translate("/plugins/contenttypeusage/search")"
+                                   onmouseover="EPi.ToolButton.MouseDownHandler(this)"
+                                   onmouseout="EPi.ToolButton.ResetMouseDownHandler(this)">
+                        </span>
+                    </div>
+                    <div class="epi-size15" style="float:left">
+                        <span id="spnContentInstancesSuggestion"></span>
+                    </div>
+                    <br />
+                    <table class="epi-default" cellspacing="0" id="tblContentInstances" style="border-style:None;border-collapse:collapse;">
+                        <tbody>
+                            <tr id="thRow">
+                                <th class="epitableheading" scope="col">@Html.Translate("/plugins/contenttypeusage/contentId")</th>
+                                <th class="epitableheading" scope="col">@Html.Translate("/plugins/contenttypeusage/name")</th>
+                                <th class="epitableheading" scope="col">@Html.Translate("/plugins/contenttypeusage/links")</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br />
+                    <div class="epi-size15" style="float:left">
+                        <span id="spnContentInstancesItemCount"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="loading" style="display:none;vertical-align:middle;text-align:center" id="mainAreaLoader">
+                <img src="~/Cms/Plugins/ContentTypeUsage/ClientResources/Images/ajax-loader.gif" alt="AJAX loader" title="AJAX loader" style="vertical-align:middle" />
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="modalDataView" role="dialog">
+            <div class="epi-contentContainer">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content" id="divModalContent">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title" id="modalHeader"></h4>
+                        </div>
+                        <div class="modal-body" id="modalContent">
+                            <div>
+                                <div class="epi-formArea">
+                                    <div class="epi-contentArea">
+                                        <input type="hidden" id="hidSelectedBlockId" />
+
+                                        <div style="float:right" class="epi-size15">
+                                            <input name="txtContentReferencesSearch" type="text" id="txtContentReferencesSearch" class="EP-requiredField">
+                                            <input type="hidden" id="hidContentReferencesSearchKeyword" />
+                                            <span class="epi-cmsButton" style="margin-right: 0px !important;">
+                                                <input class="epi-cmsButton-text epi-cmsButton-tools epi-cmsButton-Search" type="button"
+                                                       name="btnContentReferencesSearch" id="btnContentReferencesSearch"
+                                                       value="@Html.Translate("/plugins/contenttypeusage/search")" title="@Html.Translate("/plugins/contenttypeusage/search")"
+                                                       onmouseover="EPi.ToolButton.MouseDownHandler(this)"
+                                                       onmouseout="EPi.ToolButton.ResetMouseDownHandler(this)">
+                                            </span>
+                                        </div>
+
+                                        <div class="epi-size15" style="float:left">
+                                            <span id="spnContentReferencesSuggestion">@Html.Raw(Html.Translate("/plugins/contenttypeusage/contentReferencesSuggestion"))</span>
+                                        </div>
+
+                                        <br>
+                                        <table class="epi-default" cellspacing="0" id="tblContentReferences" style="border-style:None;border-collapse:collapse;">
+                                            <tbody>
+                                                <tr id="thRow">
+                                                    <th class="epitableheading" scope="col">@Html.Translate("/plugins/contenttypeusage/contentId")</th>
+                                                    <th class="epitableheading" scope="col">@Html.Translate("/plugins/contenttypeusage/name")</th>
+                                                    <th class="epitableheading" scope="col">@Html.Translate("/plugins/contenttypeusage/links")</th>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <br />
+                                        <div class="epi-size15">
+                                            <span id="spnContentReferencesItemCount"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="loading" style="display:none;vertical-align:middle;text-align:center" id="secondAreaLoader">
+                            <img src="~/Cms/Plugins/ContentTypeUsage/ClientResources/Images/ajax-loader.gif" alt="AJAX loader" title="AJAX loader" style="vertical-align:middle" />
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">@Html.Translate("/plugins/contenttypeusage/close")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

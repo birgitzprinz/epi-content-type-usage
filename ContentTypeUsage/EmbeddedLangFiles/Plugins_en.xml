@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<languages>
+  <language name="English" id="EN">
+    <plugins>
+      <contenttypeusage>
+        <displayname>Content Type Usage</displayname>
+        <description>Use the filter button below to search for usages of selected content type. System and media content types are not displayed in this plugin.</description>
+        <contenttype>Content Type</contenttype>
+        <filter>Filter</filter>
+        <search>Search</search>
+        <close>Close</close>
+        <contentId>Content ID</contentId>
+        <name>Name</name>
+        <links>Links</links>
+        <edit>Edit</edit>
+        <view>View</view>
+        <references>References</references>
+        <editTooltip>Link to this item in EPiServer Edit mode</editTooltip>
+        <viewTooltip>Link to this item as a front-end page</viewTooltip>
+        <referencesTooltip>View list of contents linked to this block</referencesTooltip>
+        <contentInstanceSuggestions>There are currently &lt;b&gt;{0}&lt;/b&gt; instance(s) of &lt;b&gt;{1}&lt;/b&gt;.</contentInstanceSuggestions>
+        <modalDialogHeader>Reference(s) of block &lt;b&gt;&quot;{0}&quot;&lt;/b&gt; with ID &lt;b&gt;&quot;{1}&quot;&lt;/b&gt;.</modalDialogHeader>
+        <contentReferencesSuggestions>There are currently &lt;b&gt;{0}&lt;/b&gt; content(s) linked to this block.</contentReferencesSuggestions>
+        <searchSuggestions>Your search for  &lt;b&gt;{0}&lt;/b&gt; returned &lt;b&gt;{1}&lt;/b&gt; items.</searchSuggestions>
+        <itemsCount>Displaying items {0}-{1} of {2}</itemsCount>
+      </contenttypeusage>
+    </plugins>
+  </language>
+</languages>
