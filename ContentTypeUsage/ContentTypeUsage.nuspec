@@ -4,12 +4,14 @@
 	<id>Eshn.ContentTypeUsage</id>
     <version>$version$</version>
     <title>Content Type Usage</title>
-    <authors>EPiServer Expert Services</authors>
-    <owners>EPiServer Expert Services</owners>
+    <authors>Linh Doan Cuu</authors>
+    <owners>Linh Doan Cuu</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>EPiServer CMS admin plugin to managed all content types and their usages.</description>
-    <releaseNotes>
-    </releaseNotes>
+    <licenseUrl>https://github.com/birgitzprinz/epi-content-type-usage/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/birgitzprinz/epi-content-type-usage</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/birgitzprinz/epi-content-type-usage/master/project-icon.png?raw=true</iconUrl>
+    <releaseNotes>First release</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>Content Type Usage</tags>
     <dependencies>
