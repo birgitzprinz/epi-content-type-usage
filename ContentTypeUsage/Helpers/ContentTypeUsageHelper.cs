@@ -17,7 +17,7 @@ namespace ContentTypeUsage.Helpers
     {
         private static IContentTypeRepository _contentTypeRepo = ServiceLocator.Current.GetInstance<IContentTypeRepository>();
         private static IContentRepository _contentRepo = ServiceLocator.Current.GetInstance<IContentRepository>();
-        private static AdministrationSettingsService _settingsService = ServiceLocator.Current.GetInstance<AdministrationSettingsService>();
+        private static IAdministrationSettingsService _settingsService = ServiceLocator.Current.GetInstance<IAdministrationSettingsService>();
         private static IContentModelUsage _contentUsage = ServiceLocator.Current.GetInstance<IContentModelUsage>();
         private static UrlResolver _urlResolver = ServiceLocator.Current.GetInstance<UrlResolver>();
 
@@ -30,9 +30,9 @@ namespace ContentTypeUsage.Helpers
             // Only list the types with specified group name
             var contentTypes = _contentTypeRepo.List().Where((t) =>
              {
-                 var settings = _settingsService.GetAdministrationSettings(t);
+                 var settings = _settingsService.GetAttribute(t);
                  return settings.Visible && string.Equals(settings.GroupName.ToLower(), groupName, StringComparison.OrdinalIgnoreCase);
-             }).OrderByDescending(p => _settingsService.GetAdministrationSettings(p).GroupName);
+             }).OrderByDescending(p => _settingsService.GetAttribute(p).GroupName);
 
             return contentTypes;
         }

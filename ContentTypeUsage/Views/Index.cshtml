@@ -1,8 +1,13 @@
-﻿@using EPiServer.Shell.Web.Mvc.Html;
+﻿@using EPiServer.Shell
+@using EPiServer.Shell.Web.Mvc.Html
 @using EPiServer.Framework.Web.Resources
-@using ContentTypeUsage.ViewModels;
+@using ContentTypeUsage.ViewModels
 
 @inherits System.Web.Mvc.WebViewPage<ContentTypeUsageViewModels>
+
+@{ 
+    var pathToAjaxImageLoader = Paths.ToClientResource(typeof(ContentTypeUsageViewModels), "ClientResources/Images/ajax-loader.gif");
+}
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
 <html>
@@ -498,7 +503,7 @@
                 </div>
             </div>
             <div class="loading" style="display:none;vertical-align:middle;text-align:center" id="mainAreaLoader">
-                <img src="~/Cms/Plugins/ContentTypeUsage/ClientResources/Images/ajax-loader.gif" alt="AJAX loader" title="AJAX loader" style="vertical-align:middle" />
+                <img src="@pathToAjaxImageLoader" alt="AJAX loader" title="AJAX loader" style="vertical-align:middle" />
             </div>
         </div>
 
@@ -553,7 +558,7 @@
                         </div>
 
                         <div class="loading" style="display:none;vertical-align:middle;text-align:center" id="secondAreaLoader">
-                            <img src="~/Cms/Plugins/ContentTypeUsage/ClientResources/Images/ajax-loader.gif" alt="AJAX loader" title="AJAX loader" style="vertical-align:middle" />
+                            <img src="@pathToAjaxImageLoader" alt="AJAX loader" title="AJAX loader" style="vertical-align:middle" />
                         </div>
 
                         <div class="modal-footer">

@@ -15,8 +15,8 @@
     <copyright>Copyright 2017</copyright>
     <tags>Content Type Usage</tags>
     <dependencies>
-      <dependency id="EPiServer.CMS.Core" version="9.0.0" />
-      <dependency id="EPiServer.Framework" version="9.0.0" />
+      <dependency id="EPiServer.CMS.Core" version="10.0.1" />
+      <dependency id="EPiServer.Framework" version="10.0.1" />
       <dependency id="Microsoft.AspNet.Mvc" version="5.2.2" />
       <dependency id="Newtonsoft.Json" version="5.0.8" />
     </dependencies>
@@ -24,5 +24,6 @@
   <files>
     <file src="ClientResources\**" target="content\modules\_protected\ContentTypeUsage\ClientResources" />
     <file src="Views\*.*" target="content\modules\_protected\ContentTypeUsage\Views" />
+    <file src="module.config" target="content\modules\_protected\ContentTypeUsage\module.config" />
   </files>
 </package>
