@@ -30,7 +30,7 @@ namespace ContentTypeUsage.Initialization
             // Language translation
             var localizationService = LocalizationService.Current as ProviderBasedLocalizationService;
             var localizationProvider = new EmbeddedXmlLocalizationProviderInitializer().GetInitializedProvider("Eshn.ContentTypeUsage", Assembly.GetExecutingAssembly());
-            localizationService.Providers.Add(localizationProvider);
+            localizationService.AddProvider(localizationProvider);
         }
 
         public void Uninitialize(InitializationEngine context)

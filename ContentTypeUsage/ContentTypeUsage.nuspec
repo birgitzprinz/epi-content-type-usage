@@ -2,7 +2,7 @@
 <package >
   <metadata>
 	<id>Eshn.ContentTypeUsage</id>
-    <version>$version$</version>
+    <version>1.0.0</version>
     <title>Content Type Usage</title>
     <authors>Linh Doan Cuu</authors>
     <owners>Linh Doan Cuu</owners>
@@ -15,10 +15,11 @@
     <copyright>Copyright 2017</copyright>
     <tags>Content Type Usage</tags>
     <dependencies>
-      <dependency id="EPiServer.CMS.Core" version="10.0.1" />
-      <dependency id="EPiServer.Framework" version="10.0.1" />
+      <dependency id="EPiServer.CMS.Core" version="11.1.0" />
+      <dependency id="EPiServer.Framework" version="11.1.0" />
       <dependency id="Microsoft.AspNet.Mvc" version="5.2.2" />
-      <dependency id="Newtonsoft.Json" version="5.0.8" />
+      <dependency id="Newtonsoft.Json" version="9.0.1" />
+      <dependency id="EPiServer.CMS.AspNet" version="11.1.0" />
     </dependencies>
   </metadata>
   <files>

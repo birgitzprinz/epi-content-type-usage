@@ -3,7 +3,6 @@ using ContentTypeUsage.ViewModels;
 using EPiServer.Core;
 using EPiServer.Logging;
 using EPiServer.PlugIn;
-using EPiServer.ServiceLocation;
 using System;
 using System.Linq;
 using System.Web.Mvc;
@@ -22,7 +21,7 @@ namespace ContentTypeUsage.Controllers
     [Authorize(Roles = "Administrators, WebAdmins, CmsAdmins")]
     public class ContentTypeUsageController : Controller
     {
-        private ILogger _log = ServiceLocator.Current.GetInstance<ILogger>();
+        private static readonly ILogger Logger = LogManager.GetLogger();
 
         public ActionResult Index()
         {
@@ -43,7 +42,7 @@ namespace ContentTypeUsage.Controllers
             }
             catch(Exception ex)
             {
-                _log.Error("Cannot retrieve list of content types", ex);
+                Logger.Error("Cannot retrieve list of content types", ex);
                 return View("~/modules/_protected/ContentTypeUsage/Views/Index.cshtml", model);
             }
         }
@@ -82,7 +81,7 @@ namespace ContentTypeUsage.Controllers
             }
             catch (Exception ex)
             {
-                _log.Error("Cannot retrieve list of instances", ex);
+                Logger.Error("Cannot retrieve list of instances", ex);
                 return (Json(new
                 {
                     status = true,
@@ -125,7 +124,7 @@ namespace ContentTypeUsage.Controllers
             }
             catch (Exception ex)
             {
-                _log.Error("Cannot retrieve block's references", ex);
+                Logger.Error("Cannot retrieve block's references", ex);
                 return (Json(new
                 {
                     status = true,
