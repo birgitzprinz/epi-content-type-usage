@@ -2,7 +2,7 @@
 <package >
   <metadata>
 	<id>Eshn.ContentTypeUsage</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <title>Content Type Usage</title>
     <authors>Linh Doan Cuu</authors>
     <owners>Linh Doan Cuu</owners>
@@ -11,7 +11,9 @@
     <licenseUrl>https://github.com/birgitzprinz/epi-content-type-usage/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/birgitzprinz/epi-content-type-usage</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/birgitzprinz/epi-content-type-usage/master/project-icon.png?raw=true</iconUrl>
-    <releaseNotes>First release</releaseNotes>
+    <releaseNotes>
+      Remove dependencies of structuremap-signed and structuremap.web-signed
+    </releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>Content Type Usage</tags>
     <dependencies>
