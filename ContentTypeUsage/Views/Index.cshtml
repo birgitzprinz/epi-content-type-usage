@@ -27,11 +27,11 @@
 
         <link href="~/App_Themes/Default/Styles/system.css" type="text/css" rel="stylesheet" />
         <link href="~/App_Themes/Default/Styles/ToolButton.css" type="text/css" rel="stylesheet" />
-
-        <script src="/EPiServer/CMS/javascript/system.aspx" type="text/javascript"></script>
-        <script src="~/Util/javascript/episerverscriptmanager.js" type="text/javascript"></script>
-        <script src="~/EPiServer/CMS/javascript/system.js" type="text/javascript"></script>
-        <script src="~/EPiServer/CMS/javascript/dialog.js" type="text/javascript"></script>
+        
+        <script src="@EPiServer.UriSupport.ResolveUrlFromUIBySettings("javascript/system.aspx")" type="text/javascript"></script>
+        <script src="@EPiServer.UriSupport.ResolveUrlFromUtilBySettings("javascript/episerverscriptmanager.js")" type="text/javascript"></script>
+        <script src="@EPiServer.UriSupport.ResolveUrlFromUIBySettings("javascript/system.js")" type="text/javascript"></script>
+        <script src="@EPiServer.UriSupport.ResolveUrlFromUIBySettings("javascript/dialog.js")" type="text/javascript"></script>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" type="text/javascript"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.2/chosen.jquery.min.js" type="text/javascript"></script>
