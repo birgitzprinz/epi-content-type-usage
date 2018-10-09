@@ -11,90 +11,99 @@
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
 <html>
-    <head>
-        <title>@Page.Title</title>
+<head>
+    <title>@Page.Title</title>
 
-        <!-- Mimic Internet Explorer 9 -->
-        <meta http-equiv="x-ua-compatible" content="IE=9">
+    <!-- Mimic Internet Explorer 9 -->
+    <meta http-equiv="x-ua-compatible" content="IE=9">
 
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.2/chosen.min.css" type="text/css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.2/chosen.min.css" type="text/css" rel="stylesheet" />
 
-        @Html.Raw(ClientResources.RenderResources("Dojo", new[] { ClientResourceType.Style }))
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
-        @Html.Raw(ClientResources.RenderResources("ShellCore", new[] { ClientResourceType.Style }))
-        @Html.Raw(ClientResources.RenderResources("ShellCoreLightTheme"))
+    @Html.Raw(ClientResources.RenderResources("Dojo", new[] { ClientResourceType.Style }))
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
+    @Html.Raw(ClientResources.RenderResources("ShellCore", new[] { ClientResourceType.Style }))
+    @Html.Raw(ClientResources.RenderResources("ShellCoreLightTheme"))
 
-        <link href="~/App_Themes/Default/Styles/system.css" type="text/css" rel="stylesheet" />
-        <link href="~/App_Themes/Default/Styles/ToolButton.css" type="text/css" rel="stylesheet" />
-        
-        <script src="@EPiServer.UriSupport.ResolveUrlFromUIBySettings("javascript/system.aspx")" type="text/javascript"></script>
-        <script src="@EPiServer.UriSupport.ResolveUrlFromUtilBySettings("javascript/episerverscriptmanager.js")" type="text/javascript"></script>
-        <script src="@EPiServer.UriSupport.ResolveUrlFromUIBySettings("javascript/system.js")" type="text/javascript"></script>
-        <script src="@EPiServer.UriSupport.ResolveUrlFromUIBySettings("javascript/dialog.js")" type="text/javascript"></script>
+    <link href="~/App_Themes/Default/Styles/system.css" type="text/css" rel="stylesheet" />
+    <link href="~/App_Themes/Default/Styles/ToolButton.css" type="text/css" rel="stylesheet" />
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" type="text/javascript"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.2/chosen.jquery.min.js" type="text/javascript"></script>
+    <script src="@EPiServer.UriSupport.ResolveUrlFromUIBySettings("javascript/system.aspx")" type="text/javascript"></script>
+    <script src="@EPiServer.UriSupport.ResolveUrlFromUtilBySettings("javascript/episerverscriptmanager.js")" type="text/javascript"></script>
+    <script src="@EPiServer.UriSupport.ResolveUrlFromUIBySettings("javascript/system.js")" type="text/javascript"></script>
+    <script src="@EPiServer.UriSupport.ResolveUrlFromUIBySettings("javascript/dialog.js")" type="text/javascript"></script>
 
-        <script type="text/javascript">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.2/chosen.jquery.min.js" type="text/javascript"></script>
 
-            // The following scripts will not work on IE11 (default mode 5 in EPiServer Admin)
-            // This is not a plugin's issue, but rather an issue of EPiServer CMS Admin mode
-            // This bug will not be fixed by CMS core team as IE11 is over 4 years old
+    <script type="text/javascript">
 
-            $(document).ready(function () {
-                var IEVersion = GetIEVersion();
-                if (GetIEVersion() != 8) {
-                    loadjscssfile("https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@1.5.4/src/loadingoverlay.min.js", "js");
-                    loadjscssfile("https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@1.5.4/extras/loadingoverlay_progress/loadingoverlay_progress.min.js", "js");
-                }
-            });
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
 
-            function GetIEVersion() {
-                var sAgent = window.navigator.userAgent;
-                var Idx = sAgent.indexOf("MSIE");
+        // The following scripts will not work on IE11 (default mode 5 in EPiServer Admin)
+        // This is not a plugin's issue, but rather an issue of EPiServer CMS Admin mode
+        // This bug will not be fixed by CMS core team as IE11 is over 4 years old
 
-                // If IE, return version number.
-                if (Idx > 0)
-                    return parseInt(sAgent.substring(Idx + 5, sAgent.indexOf(".", Idx)));
-
-                // If IE 11 then look for Updated user agent string.
-                else if (!!navigator.userAgent.match(/Trident\/7\./))
-                    return 11;
-
-                else
-                    return 0; //It is not IE
+        $(document).ready(function () {
+            var IEVersion = GetIEVersion();
+            if (GetIEVersion() != 8) {
+                loadjscssfile("https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@1.5.4/src/loadingoverlay.min.js", "js");
+                loadjscssfile("https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@1.5.4/extras/loadingoverlay_progress/loadingoverlay_progress.min.js", "js");
             }
+        });
 
-            // Load js file dynamically
-            function loadjscssfile(filename, filetype) {
-                if (filetype == "js") { //if filename is a external JavaScript file
-                    var fileref = document.createElement('script')
-                    fileref.setAttribute("type", "text/javascript")
-                    fileref.setAttribute("src", filename)
-                }
-                else if (filetype == "css") { //if filename is an external CSS file
-                    var fileref = document.createElement("link")
-                    fileref.setAttribute("rel", "stylesheet")
-                    fileref.setAttribute("type", "text/css")
-                    fileref.setAttribute("href", filename)
-                }
-                if (typeof fileref != "undefined")
-                    document.getElementsByTagName("head")[0].appendChild(fileref)
+        function GetIEVersion() {
+            var sAgent = window.navigator.userAgent;
+            var Idx = sAgent.indexOf("MSIE");
+
+            // If IE, return version number.
+            if (Idx > 0)
+                return parseInt(sAgent.substring(Idx + 5, sAgent.indexOf(".", Idx)));
+
+            // If IE 11 then look for Updated user agent string.
+            else if (!!navigator.userAgent.match(/Trident\/7\./))
+                return 11;
+
+            else
+                return 0; //It is not IE
+        }
+
+        // Load js file dynamically
+        function loadjscssfile(filename, filetype) {
+            if (filetype == "js") { //if filename is a external JavaScript file
+                var fileref = document.createElement('script')
+                fileref.setAttribute("type", "text/javascript")
+                fileref.setAttribute("src", filename)
             }
+            else if (filetype == "css") { //if filename is an external CSS file
+                var fileref = document.createElement("link")
+                fileref.setAttribute("rel", "stylesheet")
+                fileref.setAttribute("type", "text/css")
+                fileref.setAttribute("href", filename)
+            }
+            if (typeof fileref != "undefined")
+                document.getElementsByTagName("head")[0].appendChild(fileref)
+        }
 
-            // Javascript string format
-            String.prototype.format = String.prototype.f = function () {
-                var s = this,
-                    i = arguments.length;
+        // Javascript string format
+        String.prototype.format = String.prototype.f = function () {
+            var s = this,
+                i = arguments.length;
 
-                while (i--) {
-                    s = s.replace(new RegExp('\\{' + i + '\\}', 'gm'), arguments[i]);
-                }
-                return s;
-            };
+            while (i--) {
+                s = s.replace(new RegExp('\\{' + i + '\\}', 'gm'), arguments[i]);
+            }
+            return s;
+        };
 
-            // Page size for the paging parameters
+        // Page size for the paging parameters
         var pageSize = 10;
 
         $(document).ready(function () {
@@ -187,7 +196,7 @@
 
             $.ajax({
                 type: "GET",
-                url: "/custom-plugins/content-type-usage/GetInstances?contentTypeId=" + contentTypeId + "&page=" + page + "&pageSize=" + pageSize + (searchKeyword != '' ? '&query=' + searchKeyword : ''),
+                url: "/custom-plugins/content-type-usage/GetInstances?contentTypeId=" + contentTypeId + "&page=" + page + "&pageSize=" + pageSize + (searchKeyword != '' ? '&query=' + encodeURIComponent(searchKeyword) : ''),
                 dataType: "json",
                 success: function (response) {
                     if($('#divMainArea').LoadingOverlay != undefined) {
@@ -203,7 +212,7 @@
 
                     if (response.status) {
                         for (var i = 0; i < response.items.length; i++) {
-                            var row = '<tr><td>' + response.items[i].Id + '</td><td>' + response.items[i].Name + '</td><td>';
+                            var row = '<tr><td>' + response.items[i].Id + '</td><td>' + escapeHtml(response.items[i].Name) + '</td><td>';
                             if (response.items[i].ViewLink != undefined)
                             {
                                 row += '<a href="' + response.items[i].ViewLink + '" target="_blank" title="@Html.Translate("/plugins/contenttypeusage/viewTooltip")">@Html.Translate("/plugins/contenttypeusage/view")</a> &nbsp;';
@@ -215,10 +224,10 @@
 
                             if (response.items[i].IsBlockType)
                             {
-                                row += '<a href="#" onclick="viewBlockReferences(event, ' + response.items[i].Id + ', \'' + response.items[i].Name.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0') + '\');" title="@Html.Translate("/plugins/contenttypeusage/referencesTooltip")">@Html.Translate("/plugins/contenttypeusage/references")</a> &nbsp';
+                                row += '<a href="#" onclick="viewBlockReferences(event, ' + response.items[i].Id + ', \'' + escapeHtml(response.items[i].Name.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0')) + '\');" title="@Html.Translate("/plugins/contenttypeusage/referencesTooltip")">@Html.Translate("/plugins/contenttypeusage/references")</a> &nbsp';
                             }
 
-                            row += '</td></tr>'
+                            row += '</td></tr>';
                             table.append(row);
                         }
 
@@ -266,7 +275,7 @@
 
                     if (response.status) {
                         for (var i = 0; i < response.items.length; i++) {
-                            var row = '<tr><td>' + response.items[i].Id + '</td><td>' + response.items[i].Name + '</td><td>';
+                            var row = '<tr><td>' + response.items[i].Id + '</td><td>' + escapeHtml(response.items[i].Name) + '</td><td>';
                             if (response.items[i].ViewLink != undefined) {
                                 row += '<a href="' + response.items[i].ViewLink + '" target="_blank" title="@Html.Translate("/plugins/contenttypeusage/viewTooltip")">@Html.Translate("/plugins/contenttypeusage/view")</a> &nbsp;';
                             }
@@ -300,7 +309,7 @@
         function viewBlockReferences(event, blockId, blockName) {
             (event.preventDefault) ? event.preventDefault() : event.returnValue = false;
 
-            $("#modalHeader").html('@Html.Raw(Html.Translate("/plugins/contenttypeusage/modalDialogHeader"))'.format(blockName, blockId));
+            $("#modalHeader").html('@Html.Raw(Html.Translate("/plugins/contenttypeusage/modalDialogHeader"))'.format(escapeHtml(blockName), blockId));
             $("#hidSelectedBlockId").val(blockId);
 
             // Empty table content references & show the modal dialog
@@ -396,28 +405,28 @@
             markup += '</td></tr>';
             return markup;
         }
-        </script>
+    </script>
 
-        <style>
-            /*Style for loading overlay div in IE7*/
-            .loading {
-                margin: 0 0 0 0;
-                position: absolute;
-                z-index: 2;
-                border: 1px solid #000;
-                height: 50%;
-                width: 50%;
-                /* RGBa with 0.6 opacity */
-                background: rgba(0, 0, 0, 0.6);
-                /* For IE 5.5 - 7*/
-                filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
-                /* For IE 8*/
-                -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
-                top: 0px;
-                left: 0px;
-                height: 100%;
-                width: 100%;
-            }
+    <style>
+        /*Style for loading overlay div in IE7*/
+        .loading {
+            margin: 0 0 0 0;
+            position: absolute;
+            z-index: 2;
+            border: 1px solid #000;
+            height: 50%;
+            width: 50%;
+            /* RGBa with 0.6 opacity */
+            background: rgba(0, 0, 0, 0.6);
+            /* For IE 5.5 - 7*/
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+            /* For IE 8*/
+            -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+            top: 0px;
+            left: 0px;
+            height: 100%;
+            width: 100%;
+        }
 
             /*Style for loading overlay image in IE7*/
             .loading img {
@@ -426,8 +435,8 @@
                 margin-top: -16px; /* Move the image back up half its height */
                 left: 50%;
             }
-        </style>
-    </head>
+    </style>
+</head>
     <body>
         <div class="epi-contentContainer epi-padding">
             <div class="epi-contentArea">

@@ -2,7 +2,7 @@
 <package >
   <metadata>
 	<id>Eshn.ContentTypeUsage</id>
-    <version>1.0.1</version>
+    <version>1.0.3</version>
     <title>Content Type Usage</title>
     <authors>Linh Doan Cuu</authors>
     <owners>Linh Doan Cuu</owners>
@@ -12,7 +12,7 @@
     <projectUrl>https://github.com/birgitzprinz/epi-content-type-usage</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/birgitzprinz/epi-content-type-usage/master/project-icon.png?raw=true</iconUrl>
     <releaseNotes>
-      Remove dependencies of structuremap-signed and structuremap.web-signed
+      Handle html tags and special characters in content names.
     </releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>Content Type Usage</tags>
