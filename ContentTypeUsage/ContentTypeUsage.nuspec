@@ -2,7 +2,7 @@
 <package >
   <metadata>
 	<id>Eshn.ContentTypeUsage</id>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <title>Content Type Usage</title>
     <authors>Linh Doan Cuu</authors>
     <owners>Linh Doan Cuu</owners>
@@ -12,7 +12,7 @@
     <projectUrl>https://github.com/birgitzprinz/epi-content-type-usage</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/birgitzprinz/epi-content-type-usage/master/project-icon.png?raw=true</iconUrl>
     <releaseNotes>
-      Handle html tags and special characters in content names.
+      Remove dependency to Microsoft.CodeDom.Providers.DotNetCompilerPlatform and Microsoft.Net.Compilers.
     </releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>Content Type Usage</tags>
