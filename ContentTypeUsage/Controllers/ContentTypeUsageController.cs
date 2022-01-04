@@ -1,11 +1,11 @@
 ﻿using ContentTypeUsage.Helpers;
 using ContentTypeUsage.ViewModels;
 using EPiServer.Core;
-using EPiServer.Logging;
-using EPiServer.PlugIn;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Linq;
-using System.Web.Mvc;
 
 namespace ContentTypeUsage.Controllers
 {
@@ -13,17 +13,12 @@ namespace ContentTypeUsage.Controllers
     /// The controller class for Content Type Usage admin tool
     /// </summary>
     /// <seealso cref="Controller" />
-    [GuiPlugIn(
-        Area = PlugInArea.AdminMenu,
-        Url = "/custom-plugins/content-type-usage",
-        DisplayName = "Content Type Usage",
-        LanguagePath = "/plugins/contenttypeusage")]
     [Authorize(Roles = "Administrators, WebAdmins, CmsAdmins")]
+    [Route("[controller]")]
     public class ContentTypeUsageController : Controller
     {
-        private static readonly ILogger Logger = LogManager.GetLogger();
-
-        public ActionResult Index()
+        [Route("[action]")]
+        public IActionResult Index()
         {
             var model = new ContentTypeUsageViewModels
             {
@@ -31,20 +26,12 @@ namespace ContentTypeUsage.Controllers
                 AllPageTypes = Enumerable.Empty<SelectListItem>()
             };
 
-            try
-            {
-                model.AllBlockTypes = ContentTypeUsageHelper.ListAllContentTypes("blocktypes")
-                    .Select(t => new SelectListItem { Text = t.LocalizedFullName, Value = t.ID.ToString() });
-                model.AllPageTypes = ContentTypeUsageHelper.ListAllContentTypes("pagetypes")
-                    .Select(t => new SelectListItem { Text = t.LocalizedFullName, Value = t.ID.ToString() });
+            model.AllBlockTypes = ContentTypeUsageHelper.ListAllContentTypes("blocktypes")
+                .Select(t => new SelectListItem { Text = t.LocalizedFullName, Value = t.ID.ToString() });
+            model.AllPageTypes = ContentTypeUsageHelper.ListAllContentTypes("pagetypes")
+                .Select(t => new SelectListItem { Text = t.LocalizedFullName, Value = t.ID.ToString() });
 
-                return View("~/modules/_protected/ContentTypeUsage/Views/Index.cshtml", model);
-            }
-            catch(Exception ex)
-            {
-                Logger.Error("Cannot retrieve list of content types", ex);
-                return View("~/modules/_protected/ContentTypeUsage/Views/Index.cshtml", model);
-            }
+            return View(model);
         }
 
         /// <summary>
@@ -56,37 +43,36 @@ namespace ContentTypeUsage.Controllers
         /// <param name="query">The query string.</param>
         /// <returns></returns>
         [HttpGet]
+        [Route("[action]")]
         public JsonResult GetInstances(int contentTypeId, int page, int pageSize = 10, string query = "")
         {
-            var total = 0;
             try
             {
-                var result = ContentTypeUsageHelper.ListAllContentOfType(contentTypeId, page, pageSize, query, out total);
+                var result = ContentTypeUsageHelper.ListAllContentOfType(contentTypeId, page, pageSize, query, out var total);
 
-                return (Json(new
+                return Json(new
                 {
                     status = true,
-                    page = page,
-                    pageSize = pageSize,
-                    total = total,
+                    page,
+                    pageSize,
+                    total,
                     items = result.Select(t => new
                     {
                         Id = t.ContentLink.ID,
-                        Name = t.Name,
+                        t.Name,
                         ViewLink = ContentTypeUsageHelper.ResolveViewUrl(t),
                         EditLink = ContentTypeUsageHelper.ResolveEditUrl(t),
                         IsBlockType = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType)
                     })
-                }, JsonRequestBehavior.AllowGet));
+                });
             }
             catch (Exception ex)
             {
-                Logger.Error("Cannot retrieve list of instances", ex);
-                return (Json(new
+                return Json(new
                 {
-                    status = true,
+                    status = false,
                     message = ex.Message
-                }, JsonRequestBehavior.AllowGet));
+                });
             }
         }
 
@@ -99,37 +85,36 @@ namespace ContentTypeUsage.Controllers
         /// <param name="query">The query string.</param>
         /// <returns></returns>
         [HttpGet]
+        [Route("[action]")]
         public JsonResult GetReferences(int blockId, int page, int pageSize = 10, string query = "")
         {
-            var total = 0;
             try
             {
-                var result = ContentTypeUsageHelper.ListAllReferenceOfContentInstance(blockId, page, pageSize, query, out total);
+                var result = ContentTypeUsageHelper.ListAllReferenceOfContentInstance(blockId, page, pageSize, query, out var total);
 
-                return (Json(new
+                return Json(new
                 {
                     status = true,
-                    page = page,
-                    pageSize = pageSize,
-                    total = total,
+                    page,
+                    pageSize,
+                    total,
                     items = result.Select(t => new
                     {
                         Id = t.ContentLink.ID,
-                        Name = t.Name,
+                        t.Name,
                         ViewLink = ContentTypeUsageHelper.ResolveViewUrl(t),
                         EditLink = ContentTypeUsageHelper.ResolveEditUrl(t),
                         IsBlockType = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType)
                     })
-                }, JsonRequestBehavior.AllowGet));
+                });
             }
             catch (Exception ex)
             {
-                Logger.Error("Cannot retrieve block's references", ex);
-                return (Json(new
+                return Json(new
                 {
-                    status = true,
+                    status = false,
                     message = ex.Message
-                }, JsonRequestBehavior.AllowGet));
+                });
             }
         }
     }

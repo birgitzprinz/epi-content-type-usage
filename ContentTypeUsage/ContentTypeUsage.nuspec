@@ -1,32 +1,34 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-	<id>Eshn.ContentTypeUsage</id>
-    <version>1.0.4</version>
+	  <id>Eshn.ContentTypeUsage</id>
+    <version>2.0.0</version>
     <title>Content Type Usage</title>
+    <icon>icon.png</icon>
     <authors>Linh Doan Cuu</authors>
     <owners>Linh Doan Cuu</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>EPiServer CMS admin plugin to managed all content types and their usages.</description>
-    <licenseUrl>https://github.com/birgitzprinz/epi-content-type-usage/blob/master/LICENSE</licenseUrl>
+    <description>Optimizely CMS admin plugin to managed all content types and their usages.</description>
     <projectUrl>https://github.com/birgitzprinz/epi-content-type-usage</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/birgitzprinz/epi-content-type-usage/master/project-icon.png?raw=true</iconUrl>
     <releaseNotes>
-      Remove dependency to Microsoft.CodeDom.Providers.DotNetCompilerPlatform and Microsoft.Net.Compilers.
+      Support Optimizely CMS 12.
     </releaseNotes>
-    <copyright>Copyright 2017</copyright>
+    <copyright>Copyright 2021</copyright>
     <tags>Content Type Usage</tags>
     <dependencies>
-      <dependency id="EPiServer.CMS.Core" version="11.1.0" />
-      <dependency id="EPiServer.Framework" version="11.1.0" />
-      <dependency id="Microsoft.AspNet.Mvc" version="5.2.2" />
-      <dependency id="Newtonsoft.Json" version="9.0.1" />
-      <dependency id="EPiServer.CMS.AspNet" version="11.1.0" />
+      <dependency id="EPiServer.CMS.Core" version="12.0.3" />
+      <dependency id="EPiServer.Framework" version="12.0.3" />
+      <dependency id="EPiServer.CMS.UI.Core" version="12.0.3" />
+      <dependency id="Microsoft.AspNetCore.Mvc.NewtonsoftJson" version="5.0.13" />
     </dependencies>
+    <license type="file">LICENSE.txt</license>
   </metadata>
   <files>
-    <file src="ClientResources\**" target="content\modules\_protected\ContentTypeUsage\ClientResources" />
-    <file src="Views\*.*" target="content\modules\_protected\ContentTypeUsage\Views" />
-    <file src="module.config" target="content\modules\_protected\ContentTypeUsage\module.config" />
+    <file src="ContentTypeUsage.zip" target="content\modules\_protected\ContentTypeUsage\ContentTypeUsage.zip" />
+    <file src="icon.png" target="" />
+    <file src="LICENSE.txt" target="" />
+    <file src="readme.txt" target="" />
+    <file src="Eshn.ContentTypeUsage.targets" target="build\net5.0\" />
+    <file src="bin\net5.0\*.dll" target="lib\net5.0\" />
   </files>
 </package>

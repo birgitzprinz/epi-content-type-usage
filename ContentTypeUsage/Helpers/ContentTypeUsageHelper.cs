@@ -1,7 +1,7 @@
 ﻿using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
-using EPiServer.Editor;
+using EPiServer.Framework.Modules.Internal;
 using EPiServer.ServiceLocation;
 using EPiServer.Web.Routing;
 using System;
@@ -15,11 +15,11 @@ namespace ContentTypeUsage.Helpers
     /// </summary>
     public class ContentTypeUsageHelper
     {
-        private static IContentTypeRepository _contentTypeRepo = ServiceLocator.Current.GetInstance<IContentTypeRepository>();
-        private static IContentRepository _contentRepo = ServiceLocator.Current.GetInstance<IContentRepository>();
-        private static IAdministrationSettingsService _settingsService = ServiceLocator.Current.GetInstance<IAdministrationSettingsService>();
-        private static IContentModelUsage _contentUsage = ServiceLocator.Current.GetInstance<IContentModelUsage>();
-        private static UrlResolver _urlResolver = ServiceLocator.Current.GetInstance<UrlResolver>();
+        private static readonly IContentTypeRepository ContentTypeRepo = ServiceLocator.Current.GetInstance<IContentTypeRepository>();
+        private static readonly IContentRepository ContentRepo = ServiceLocator.Current.GetInstance<IContentRepository>();
+        private static readonly IAdministrationSettingsService SettingsService = ServiceLocator.Current.GetInstance<IAdministrationSettingsService>();
+        private static readonly IContentModelUsage ContentUsage = ServiceLocator.Current.GetInstance<IContentModelUsage>();
+        private static readonly IUrlResolver UrlResolver = ServiceLocator.Current.GetInstance<IUrlResolver>();
 
         /// <summary>
         /// Lists all content types available in the site base on group name (AdministrationSetttings group)
@@ -28,11 +28,11 @@ namespace ContentTypeUsage.Helpers
         public static IEnumerable<ContentType> ListAllContentTypes(string groupName)
         {
             // Only list the types with specified group name
-            var contentTypes = _contentTypeRepo.List().Where((t) =>
+            var contentTypes = ContentTypeRepo.List().Where(t =>
              {
-                 var settings = _settingsService.GetAttribute(t);
+                 var settings = SettingsService.GetAttribute(t);
                  return settings.Visible && string.Equals(settings.GroupName.ToLower(), groupName, StringComparison.OrdinalIgnoreCase);
-             }).OrderByDescending(p => _settingsService.GetAttribute(p).GroupName);
+             }).OrderByDescending(p => SettingsService.GetAttribute(p).GroupName);
 
             return contentTypes;
         }
@@ -48,8 +48,8 @@ namespace ContentTypeUsage.Helpers
         /// <returns></returns>
         public static IEnumerable<IContent> ListAllContentOfType(int contentTypeId, int page, int pageSize, string query, out int total)
         {
-            var contentType = _contentTypeRepo.Load(contentTypeId);
-            var contentUsages = _contentUsage.ListContentOfContentType(contentType);
+            var contentType = ContentTypeRepo.Load(contentTypeId);
+            var contentUsages = ContentUsage.ListContentOfContentType(contentType);
 
             // Get distinct content references without version
             var contentReferences = contentUsages
@@ -58,7 +58,7 @@ namespace ContentTypeUsage.Helpers
 
             // Fetch data from DB
             var instances = contentReferences
-                .Select(contentReference => _contentRepo.Get<IContent>(contentReference));
+                .Select(contentReference => ContentRepo.Get<IContent>(contentReference));
 
             // Exclude local blocks (block property on pages) if the current content type is a block type.
             var modelType = Type.GetType(contentType.ModelTypeString);
@@ -75,7 +75,7 @@ namespace ContentTypeUsage.Helpers
             }
 
             // Apply sorting (by publish date descending)
-            instances = instances.OrderByDescending(t => (t as IVersionable).StartPublish);
+            instances = instances.OrderByDescending(t => (t as IVersionable)?.StartPublish);
 
             total = instances.Count();
 
@@ -98,11 +98,11 @@ namespace ContentTypeUsage.Helpers
             var contentLink = new ContentReference(blockId);
 
             // Use IContentRepository to list all references of the block instance
-            var references = _contentRepo.GetReferencesToContent(contentLink, false)
+            var references = ContentRepo.GetReferencesToContent(contentLink, false)
                 .Select(x => x.OwnerID.ToReferenceWithoutVersion())
                 .Distinct();
 
-            var pageList = references.Select(t => _contentRepo.Get<IContent>(t));
+            var pageList = references.Select(t => ContentRepo.Get<IContent>(t));
 
             // Apply query
             if (!string.IsNullOrWhiteSpace(query))
@@ -111,7 +111,7 @@ namespace ContentTypeUsage.Helpers
             }
 
             // Apply sorting (by publish date descending)
-            pageList = pageList.OrderByDescending(t => (t as IVersionable).StartPublish);
+            pageList = pageList.OrderByDescending(t => (t as IVersionable)?.StartPublish);
 
             total = pageList.Count();
 
@@ -126,7 +126,9 @@ namespace ContentTypeUsage.Helpers
         /// <returns></returns>
         public static string ResolveEditUrl(IContent content)
         {
-            return PageEditing.GetEditUrl(content.ContentLink);
+            var language = content is ILocalizable localizable ? localizable.Language.Name : null;
+            return language == null ? $"{ModuleResourceResolver.Instance.ResolvePath("CMS", null)}#context=epi.cms.contentdata:///{content.ContentLink}"
+                : $"{ModuleResourceResolver.Instance.ResolvePath("CMS", null)}?language={language}#context=epi.cms.contentdata:///{content.ContentLink}";
         }
 
         /// <summary>
@@ -136,7 +138,7 @@ namespace ContentTypeUsage.Helpers
         /// <returns></returns>
         public static string ResolveViewUrl(IContent content)
         {
-            return _urlResolver.GetUrl(content.ContentLink);
+            return UrlResolver.GetUrl(content.ContentLink);
         }
     }
 }
