@@ -11,9 +11,16 @@ For CMS 9, use the branch **"CMS9"**
 
 For CMS 10, use the branch **"CMS10"**
 
-For CMS 11, use the **"master"** branch
+For CMS 11, use the branch **"CMS11"**
 
-To create a NuGet package, just complete the build of the project, then excute the **buildpackage.ps1** script.
+For CMS 12, use the **"master"** branch
+
+To create a NuGet package, just complete the build of the project, then excute the command from the project's directory:
+
+```
+dotnet pack ContentTypeUsage.csproj
+```
+
 To install the NuGet package, configure NuGet's source to point to its folder, then issue the command from package manager console:
 
 ```
