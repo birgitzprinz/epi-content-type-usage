@@ -2,7 +2,7 @@
 <package >
   <metadata>
 	  <id>Eshn.ContentTypeUsage</id>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
     <title>Content Type Usage</title>
     <icon>icon.png</icon>
     <authors>Linh Doan Cuu</authors>
@@ -11,16 +11,16 @@
     <description>Optimizely CMS admin plugin to managed all content types and their usages.</description>
     <projectUrl>https://github.com/birgitzprinz/epi-content-type-usage</projectUrl>
     <releaseNotes>
-      Support Optimizely CMS 12.
+      Added support for .Net 6.
     </releaseNotes>
     <copyright>Copyright 2021</copyright>
     <tags>Content Type Usage</tags>
     <dependencies>
+      <group targetFramework=".NETCoreApp,Version=v6.0">
+        <dependency id="EPiServer.CMS.UI.Core" version="[12.4.0,13.0.0)" />
+      </group>
       <group targetFramework=".NETCoreApp,Version=v5.0">
-        <dependency id="EPiServer.CMS.Core" version="[12.0.3,13.0.0)" />
-        <dependency id="EPiServer.Framework" version="[12.0.3,13.0.0)" />
-        <dependency id="EPiServer.CMS.UI.Core" version="[12.0.3,13.0.0)" />
-        <dependency id="Microsoft.AspNetCore.Mvc.NewtonsoftJson" version="[5.0.0,6.0.0)" />
+        <dependency id="EPiServer.CMS.UI.Core" version="[12.4.0,13.0.0)" />
       </group>
     </dependencies>
     <license type="file">LICENSE.txt</license>
@@ -35,5 +35,7 @@
     <file src="readme.txt" target="" />
     <file src="Eshn.ContentTypeUsage.targets" target="build\net5.0\" />
     <file src="bin\net5.0\*.dll" target="lib\net5.0\" />
+    <file src="Eshn.ContentTypeUsage.targets" target="build\net6.0\" />
+    <file src="bin\net6.0\*.dll" target="lib\net6.0\" />
   </files>
 </package>
