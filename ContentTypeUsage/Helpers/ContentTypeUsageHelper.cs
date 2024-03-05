@@ -46,7 +46,7 @@ namespace ContentTypeUsage.Helpers
         /// <param name="query">The query string.</param>
         /// <param name="total">The total number of items for this query.</param>
         /// <returns></returns>
-        public static IEnumerable<IContent> ListAllContentOfType(int contentTypeId, int page, int pageSize, string query, out int total)
+        public static IEnumerable<IContent> ListAllContentOfType(int contentTypeId, string query, out int total)
         {
             var contentType = ContentTypeRepo.Load(contentTypeId);
             var contentUsages = ContentUsage.ListContentOfContentType(contentType);
@@ -79,9 +79,7 @@ namespace ContentTypeUsage.Helpers
 
             total = instances.Count();
 
-            var result = instances.Skip((page - 1) * pageSize).Take(pageSize);
-
-            return result;
+            return instances;
         }
 
         /// <summary>
@@ -93,7 +91,7 @@ namespace ContentTypeUsage.Helpers
         /// <param name="query">The query string.</param>
         /// <param name="total">The total number of items for this query.</param>
         /// <returns></returns>
-        public static IEnumerable<IContent> ListAllReferenceOfContentInstance(int blockId, int page, int pageSize, string query, out int total)
+        public static IEnumerable<IContent> ListAllReferenceOfContentInstance(int blockId, string query, out int total)
         {
             var contentLink = new ContentReference(blockId);
 
@@ -115,8 +113,7 @@ namespace ContentTypeUsage.Helpers
 
             total = pageList.Count();
 
-            var result = pageList.Skip((page - 1) * pageSize).Take(pageSize);
-            return result;
+            return pageList;
         }
 
         /// <summary>
@@ -140,5 +137,22 @@ namespace ContentTypeUsage.Helpers
         {
             return UrlResolver.GetUrl(content.ContentLink);
         }
+
+        /// <summary>
+        /// Get usage count of the content.
+        /// </summary>
+        /// <param name="content">The content instance.</param>
+        /// <returns></returns>
+        public static int GetContentUsageCount(IContent content)
+        {
+            return ContentRepo.GetReferencesToContent(content.ContentLink, false).Count();
+        }
+
+        /// <summary>
+        /// Get saved date of the content.
+        /// </summary>
+        /// <param name="content">The content instance.</param>
+        /// <returns></returns>
+        public static DateTime GetModifiedDate(IContent content) => ((IChangeTrackable)content).Saved;
     }
 }

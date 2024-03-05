@@ -10,6 +10,7 @@
         <search>Search</search>
         <close>Close</close>
         <contentId>Content ID</contentId>
+	    <usages>Usages</usages>
         <name>Name</name>
         <links>Links</links>
         <edit>Edit</edit>
