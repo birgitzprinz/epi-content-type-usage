@@ -165,17 +165,19 @@
                             table.hide();
                         }
 
+                        if (response.isSelectedContentTypeBlockType) {
+                            $("#thBlockUsages").show();
+                        } else {
+                            $("#thBlockUsages").hide();
+                        }
+
                         for (var i = 0; i < response.items.length; i++) {
 
                             var row = '<tr><td>' + response.items[i].id + '</td><td>' + escapeHtml(response.items[i].name) + '</td><td>';
-                            
-                            if (response.items[i].isBlockType){
-                                row += response.items[i].usages + '</td><td>';
-                                $("#thBlockUsages").show();
-                            }else{
-                                $("#thBlockUsages").hide();
-                            }
 
+                            if (response.items[i].isBlockType) {
+                                row += response.items[i].usages + '</td><td>';
+                            }
                             if (response.items[i].viewLink != undefined) {
                                 row += '<a href="' + response.items[i].viewLink + '" target="_blank" title="@Html.Translate("/plugins/contenttypeusage/viewTooltip")">@Html.Translate("/plugins/contenttypeusage/view")</a> &nbsp;';
                             }

@@ -4,7 +4,6 @@ using EPiServer.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Org.BouncyCastle.Utilities;
 using System;
 using System.Linq;
 
@@ -57,7 +56,6 @@ namespace ContentTypeUsage.Controllers
                 {
                     Id = t.ContentLink.ID,
                     Name = t.Name,
-                    Modified = ContentTypeUsageHelper.GetModifiedDate(t),
                     ViewLink = ContentTypeUsageHelper.ResolveViewUrl(t),
                     EditLink = ContentTypeUsageHelper.ResolveEditUrl(t),
                     IsBlockType = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType),
@@ -65,7 +63,6 @@ namespace ContentTypeUsage.Controllers
                         ? ContentTypeUsageHelper.GetContentUsageCount(t)
                         : 1
                 }).OrderByDescending(x => x.Usages)
-                  .ThenByDescending(y => y.Modified)
                   .Skip((page - 1) * pageSize).Take(pageSize);
 
                 return Json(new
@@ -74,7 +71,8 @@ namespace ContentTypeUsage.Controllers
                     page,
                     pageSize,
                     total,
-                    items = selectedItems
+                    items = selectedItems,
+                    isSelectedContentTypeBlockType = ContentTypeUsageHelper.IsContentTypeBlockType(contentTypeId)
                 });
             }
             catch (Exception ex)
@@ -107,12 +105,10 @@ namespace ContentTypeUsage.Controllers
                 {
                     Id = t.ContentLink.ID,
                     Name = t.Name,
-                    Modified = ContentTypeUsageHelper.GetModifiedDate(t),
                     ViewLink = ContentTypeUsageHelper.ResolveViewUrl(t),
                     EditLink = ContentTypeUsageHelper.ResolveEditUrl(t),
                     IsBlockType = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType)
-                }).OrderByDescending(x => x.Modified)
-                  .Skip((page - 1) * pageSize)
+                }).Skip((page - 1) * pageSize)
                   .Take(pageSize); ;
 
                 return Json(new
@@ -121,7 +117,8 @@ namespace ContentTypeUsage.Controllers
                     page,
                     pageSize,
                     total,
-                    items = selectedItems
+                    items = selectedItems,
+                    isSelectedContentTypeBlockType = false
                 });
             }
             catch (Exception ex)

@@ -74,14 +74,27 @@ namespace ContentTypeUsage.Helpers
                 instances = instances.Where(t => t.Name.IndexOf(query, 0, StringComparison.InvariantCultureIgnoreCase) > -1);
             }
 
-            // Apply sorting (by publish date descending)
-            instances = instances.OrderByDescending(t => (t as IVersionable)?.StartPublish);
+            // Apply sorting (by saved date descending)
+            instances = instances.OrderByDescending(t => ((IChangeTrackable)t).Saved);
 
             total = instances.Count();
 
             return instances;
         }
 
+        /// <summary>
+        /// Check if the content type is a block type (Exclude local blocks (block property on pages)).
+        /// </summary>
+        /// <param name="contentTypeId">The content type identifier.</param>
+        /// <returns></returns>
+        public static bool IsContentTypeBlockType(int contentTypeId)
+        {
+            var contentType = ContentTypeRepo.Load(contentTypeId);
+
+            // Exclude local blocks (block property on pages) if the current content type is a block type.
+            var modelType = Type.GetType(contentType.ModelTypeString);
+            return modelType != null && typeof(BlockData).IsAssignableFrom(modelType);
+        }
         /// <summary>
         /// Lists all references of a content instance (a block instance).
         /// </summary>
@@ -108,9 +121,9 @@ namespace ContentTypeUsage.Helpers
                 pageList = pageList.Where(t => t.Name.IndexOf(query, 0, StringComparison.InvariantCultureIgnoreCase) > -1);
             }
 
-            // Apply sorting (by publish date descending)
-            pageList = pageList.OrderByDescending(t => (t as IVersionable)?.StartPublish);
-
+            // Apply sorting (by saved date descending)
+            pageList = pageList.OrderByDescending(t => ((IChangeTrackable)t).Saved);
+            
             total = pageList.Count();
 
             return pageList;
@@ -147,12 +160,5 @@ namespace ContentTypeUsage.Helpers
         {
             return ContentRepo.GetReferencesToContent(content.ContentLink, false).Count();
         }
-
-        /// <summary>
-        /// Get saved date of the content.
-        /// </summary>
-        /// <param name="content">The content instance.</param>
-        /// <returns></returns>
-        public static DateTime GetModifiedDate(IContent content) => ((IChangeTrackable)content).Saved;
     }
 }
