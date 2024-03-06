@@ -55,7 +55,7 @@
         };
 
         // Page size for the paging parameters
-        var pageSize = 30;
+        var pageSize = 20;
 
         $(document).ready(function () {
 
@@ -157,10 +157,10 @@
                     if (response.status) {
                         if (response.items.length > 0) {
                             table.show();
-                            $("#contentInstancesSearch").show();
+                            $("#divContentInstancesSearch").show();
                             $("#spnContentInstancesItemCount").show();
                         } else {
-                            $("#contentInstancesSearch").hide();
+                            $("#divContentInstancesSearch").hide();
                             $("#spnContentInstancesItemCount").hide();
                             table.hide();
                         }
@@ -359,7 +359,7 @@
 </head>
 <body class="epi-contentTypeUsage">
     @Html.CreatePlatformNavigationMenu()
-    <div @Html.ApplyPlatformNavigation() style="overflow: visible;">
+    <div @Html.ApplyPlatformNavigation() style="height: calc(100vh - 40px);">
         <div class="epi-contentContainer epi-padding">
             <div class="epi-contentArea">
                 <h2 class="epi-uif-typography mdc-typography--headline4">@Html.Translate("/plugins/contenttypeusage/displayName")</h2>
@@ -402,7 +402,7 @@
                 </div>
 
                 <div id="divContentInstances" style="display: none;">
-                    <div style="float: right" class="epi-size15" id="contentInstancesSearch">
+                    <div style="float: right" class="epi-size15" id="divContentInstancesSearch">
                         <input name="txtContentInstancesSearch" type="text" id="txtContentInstancesSearch" class="EP-requiredField">
                         <input type="hidden" id="hidContentInstancesSearchKeyword" />
                         <span class="epi-cmsButton" style="margin-right: 0px !important;">

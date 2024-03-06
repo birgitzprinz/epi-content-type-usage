@@ -46,7 +46,7 @@ namespace ContentTypeUsage.Helpers
         /// <param name="query">The query string.</param>
         /// <param name="total">The total number of items for this query.</param>
         /// <returns></returns>
-        public static IEnumerable<IContent> ListAllContentOfType(int contentTypeId, string query, out int total)
+        public static IEnumerable<IContent> ListAllContentOfType(int contentTypeId, string query)
         {
             var contentType = ContentTypeRepo.Load(contentTypeId);
             var contentUsages = ContentUsage.ListContentOfContentType(contentType);
@@ -74,10 +74,8 @@ namespace ContentTypeUsage.Helpers
                 instances = instances.Where(t => t.Name.IndexOf(query, 0, StringComparison.InvariantCultureIgnoreCase) > -1);
             }
 
-            // Apply sorting (by saved date descending)
-            instances = instances.OrderByDescending(t => ((IChangeTrackable)t).Saved);
-
-            total = instances.Count();
+            // Apply sorting (by publish date descending)
+            instances = instances.OrderByDescending(t => (t as IVersionable)?.StartPublish);
 
             return instances;
         }
@@ -99,34 +97,21 @@ namespace ContentTypeUsage.Helpers
         /// Lists all references of a content instance (a block instance).
         /// </summary>
         /// <param name="blockId">The block identifier.</param>
-        /// <param name="page">The page.</param>
-        /// <param name="pageSize">Size of the page.</param>
         /// <param name="query">The query string.</param>
-        /// <param name="total">The total number of items for this query.</param>
         /// <returns></returns>
-        public static IEnumerable<IContent> ListAllReferenceOfContentInstance(int blockId, string query, out int total)
+        public static IEnumerable<ReferenceInformation> ListAllReferenceOfContentInstance(int blockId, string query)
         {
             var contentLink = new ContentReference(blockId);
 
-            // Use IContentRepository to list all references of the block instance
-            var references = ContentRepo.GetReferencesToContent(contentLink, false)
-                .Select(x => x.OwnerID.ToReferenceWithoutVersion())
-                .Distinct();
-
-            var pageList = references.Select(t => ContentRepo.Get<IContent>(t));
+            var references = ContentRepo.GetReferencesToContent(contentLink, false);
 
             // Apply query
             if (!string.IsNullOrWhiteSpace(query))
             {
-                pageList = pageList.Where(t => t.Name.IndexOf(query, 0, StringComparison.InvariantCultureIgnoreCase) > -1);
+                references = references.Where(t => t.OwnerName.IndexOf(query, 0, StringComparison.InvariantCultureIgnoreCase) > -1);
             }
 
-            // Apply sorting (by saved date descending)
-            pageList = pageList.OrderByDescending(t => ((IChangeTrackable)t).Saved);
-            
-            total = pageList.Count();
-
-            return pageList;
+            return references;
         }
 
         /// <summary>
@@ -142,6 +127,17 @@ namespace ContentTypeUsage.Helpers
         }
 
         /// <summary>
+        /// Resolves the CMS edit URL to a specified content instance.
+        /// </summary>
+        /// <param name="reference">The content instance.</param>
+        /// <returns></returns>
+        public static string ResolveEditUrl(ReferenceInformation reference)
+        {
+            var language = reference.OwnerLanguage.Name;
+            return $"{ModuleResourceResolver.Instance.ResolvePath("CMS", null)}?language={language}#context=epi.cms.contentdata:///{reference.OwnerID}";
+        }
+
+        /// <summary>
         /// Resolves the front-end's view URL to a specified page.
         /// </summary>
         /// <param name="content">The content instance.</param>
@@ -149,6 +145,16 @@ namespace ContentTypeUsage.Helpers
         public static string ResolveViewUrl(IContent content)
         {
             return UrlResolver.GetUrl(content.ContentLink);
+        }
+
+        /// <summary>
+        /// Resolves the front-end's view URL to a specified page.
+        /// </summary>
+        /// <param name="reference"></param>
+        /// <returns></returns>
+        public static string ResolveViewUrl(ReferenceInformation reference)
+        {
+            return UrlResolver.GetUrl(reference.OwnerID, reference.OwnerLanguage.Name);
         }
 
         /// <summary>

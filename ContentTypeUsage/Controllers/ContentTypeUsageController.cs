@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Linq;
+using EPiServer.Cms.Shell;
 
 namespace ContentTypeUsage.Controllers
 {
@@ -47,11 +48,11 @@ namespace ContentTypeUsage.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public JsonResult GetInstances(int contentTypeId, int page, int pageSize = 30, string query = "")
+        public JsonResult GetInstances(int contentTypeId, int page, int pageSize = 20, string query = "")
         {
             try
             {
-                var result = ContentTypeUsageHelper.ListAllContentOfType(contentTypeId, query, out var total);
+                var result = ContentTypeUsageHelper.ListAllContentOfType(contentTypeId, query);
                 var selectedItems = result.Select(t => new
                 {
                     Id = t.ContentLink.ID,
@@ -70,7 +71,7 @@ namespace ContentTypeUsage.Controllers
                     status = true,
                     page,
                     pageSize,
-                    total,
+                    total = result.Count(),
                     items = selectedItems,
                     isSelectedContentTypeBlockType = ContentTypeUsageHelper.IsContentTypeBlockType(contentTypeId)
                 });
@@ -95,16 +96,16 @@ namespace ContentTypeUsage.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public JsonResult GetReferences(int blockId, int page, int pageSize = 30, string query = "")
+        public JsonResult GetReferences(int blockId, int page, int pageSize = 20, string query = "")
         {
             try
             {
-                var result = ContentTypeUsageHelper.ListAllReferenceOfContentInstance(blockId, query, out var total);
+                var result = ContentTypeUsageHelper.ListAllReferenceOfContentInstance(blockId, query);
 
                 var selectedItems = result.Select(t => new
                 {
-                    Id = t.ContentLink.ID,
-                    Name = t.Name,
+                    Id = t.OwnerID.ID,
+                    Name = t.OwnerName + " (" + t.OwnerLanguage.Name + ")",
                     ViewLink = ContentTypeUsageHelper.ResolveViewUrl(t),
                     EditLink = ContentTypeUsageHelper.ResolveEditUrl(t),
                     IsBlockType = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType)
@@ -116,7 +117,7 @@ namespace ContentTypeUsage.Controllers
                     status = true,
                     page,
                     pageSize,
-                    total,
+                    total = result.Count(),
                     items = selectedItems,
                     isSelectedContentTypeBlockType = false
                 });
