@@ -6,15 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Linq;
-using EPiServer.Cms.Shell;
 
 namespace ContentTypeUsage.Controllers
 {
     /// <summary>
-    /// The controller class for Content Type Usage admin tool
+    /// The controller class for Content Type Usage tool
     /// </summary>
     /// <seealso cref="Controller" />
-    [Authorize(Roles = "Administrators, WebAdmins, CmsAdmins")]
+    [Authorize]
     [Route("[controller]")]
     public class ContentTypeUsageController : Controller
     {
@@ -52,7 +51,7 @@ namespace ContentTypeUsage.Controllers
         {
             try
             {
-                var result = ContentTypeUsageHelper.ListAllContentOfType(contentTypeId, query);
+                var result = ContentTypeUsageHelper.ListAllContentOfType(contentTypeId, query).ToList();
                 var selectedItems = result.Select(t => new
                 {
                     Id = t.ContentLink.ID,
@@ -71,7 +70,7 @@ namespace ContentTypeUsage.Controllers
                     status = true,
                     page,
                     pageSize,
-                    total = result.Count(),
+                    total = result.Count,
                     items = selectedItems,
                     isSelectedContentTypeBlockType = ContentTypeUsageHelper.IsContentTypeBlockType(contentTypeId)
                 });
@@ -100,7 +99,7 @@ namespace ContentTypeUsage.Controllers
         {
             try
             {
-                var result = ContentTypeUsageHelper.ListAllReferenceOfContentInstance(blockId, query);
+                var result = ContentTypeUsageHelper.ListAllReferenceOfContentInstance(blockId, query).ToList();
 
                 var selectedItems = result.Select(t => new
                 {
@@ -117,7 +116,7 @@ namespace ContentTypeUsage.Controllers
                     status = true,
                     page,
                     pageSize,
-                    total = result.Count(),
+                    total = result.Count,
                     items = selectedItems,
                     isSelectedContentTypeBlockType = false
                 });
