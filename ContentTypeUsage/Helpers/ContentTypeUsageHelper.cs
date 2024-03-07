@@ -46,7 +46,7 @@ namespace ContentTypeUsage.Helpers
         /// <param name="query">The query string.</param>
         /// <param name="total">The total number of items for this query.</param>
         /// <returns></returns>
-        public static IEnumerable<IContent> ListAllContentOfType(int contentTypeId, int page, int pageSize, string query, out int total)
+        public static IEnumerable<IContent> ListAllContentOfType(int contentTypeId, string query)
         {
             var contentType = ContentTypeRepo.Load(contentTypeId);
             var contentUsages = ContentUsage.ListContentOfContentType(contentType);
@@ -77,46 +77,41 @@ namespace ContentTypeUsage.Helpers
             // Apply sorting (by publish date descending)
             instances = instances.OrderByDescending(t => (t as IVersionable)?.StartPublish);
 
-            total = instances.Count();
-
-            var result = instances.Skip((page - 1) * pageSize).Take(pageSize);
-
-            return result;
+            return instances;
         }
 
+        /// <summary>
+        /// Check if the content type is a block type (Exclude local blocks (block property on pages)).
+        /// </summary>
+        /// <param name="contentTypeId">The content type identifier.</param>
+        /// <returns></returns>
+        public static bool IsContentTypeBlockType(int contentTypeId)
+        {
+            var contentType = ContentTypeRepo.Load(contentTypeId);
+
+            // Exclude local blocks (block property on pages) if the current content type is a block type.
+            var modelType = Type.GetType(contentType.ModelTypeString);
+            return modelType != null && typeof(BlockData).IsAssignableFrom(modelType);
+        }
         /// <summary>
         /// Lists all references of a content instance (a block instance).
         /// </summary>
         /// <param name="blockId">The block identifier.</param>
-        /// <param name="page">The page.</param>
-        /// <param name="pageSize">Size of the page.</param>
         /// <param name="query">The query string.</param>
-        /// <param name="total">The total number of items for this query.</param>
         /// <returns></returns>
-        public static IEnumerable<IContent> ListAllReferenceOfContentInstance(int blockId, int page, int pageSize, string query, out int total)
+        public static IEnumerable<ReferenceInformation> ListAllReferenceOfContentInstance(int blockId, string query)
         {
             var contentLink = new ContentReference(blockId);
 
-            // Use IContentRepository to list all references of the block instance
-            var references = ContentRepo.GetReferencesToContent(contentLink, false)
-                .Select(x => x.OwnerID.ToReferenceWithoutVersion())
-                .Distinct();
-
-            var pageList = references.Select(t => ContentRepo.Get<IContent>(t));
+            var references = ContentRepo.GetReferencesToContent(contentLink, false);
 
             // Apply query
             if (!string.IsNullOrWhiteSpace(query))
             {
-                pageList = pageList.Where(t => t.Name.IndexOf(query, 0, StringComparison.InvariantCultureIgnoreCase) > -1);
+                references = references.Where(t => t.OwnerName.IndexOf(query, 0, StringComparison.InvariantCultureIgnoreCase) > -1);
             }
 
-            // Apply sorting (by publish date descending)
-            pageList = pageList.OrderByDescending(t => (t as IVersionable)?.StartPublish);
-
-            total = pageList.Count();
-
-            var result = pageList.Skip((page - 1) * pageSize).Take(pageSize);
-            return result;
+            return references;
         }
 
         /// <summary>
@@ -132,6 +127,17 @@ namespace ContentTypeUsage.Helpers
         }
 
         /// <summary>
+        /// Resolves the CMS edit URL to a specified content instance.
+        /// </summary>
+        /// <param name="reference">The content instance.</param>
+        /// <returns></returns>
+        public static string ResolveEditUrl(ReferenceInformation reference)
+        {
+            var language = reference.OwnerLanguage.Name;
+            return $"{ModuleResourceResolver.Instance.ResolvePath("CMS", null)}?language={language}#context=epi.cms.contentdata:///{reference.OwnerID}";
+        }
+
+        /// <summary>
         /// Resolves the front-end's view URL to a specified page.
         /// </summary>
         /// <param name="content">The content instance.</param>
@@ -139,6 +145,26 @@ namespace ContentTypeUsage.Helpers
         public static string ResolveViewUrl(IContent content)
         {
             return UrlResolver.GetUrl(content.ContentLink);
+        }
+
+        /// <summary>
+        /// Resolves the front-end's view URL to a specified page.
+        /// </summary>
+        /// <param name="reference"></param>
+        /// <returns></returns>
+        public static string ResolveViewUrl(ReferenceInformation reference)
+        {
+            return UrlResolver.GetUrl(reference.OwnerID, reference.OwnerLanguage.Name);
+        }
+
+        /// <summary>
+        /// Get usage count of the content.
+        /// </summary>
+        /// <param name="content">The content instance.</param>
+        /// <returns></returns>
+        public static int GetContentUsageCount(IContent content)
+        {
+            return ContentRepo.GetReferencesToContent(content.ContentLink, false).Count();
         }
     }
 }

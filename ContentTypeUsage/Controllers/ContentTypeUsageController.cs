@@ -10,10 +10,10 @@ using System.Linq;
 namespace ContentTypeUsage.Controllers
 {
     /// <summary>
-    /// The controller class for Content Type Usage admin tool
+    /// The controller class for Content Type Usage tool
     /// </summary>
     /// <seealso cref="Controller" />
-    [Authorize(Roles = "Administrators, WebAdmins, CmsAdmins")]
+    [Authorize]
     [Route("[controller]")]
     public class ContentTypeUsageController : Controller
     {
@@ -27,8 +27,11 @@ namespace ContentTypeUsage.Controllers
             };
 
             model.AllBlockTypes = ContentTypeUsageHelper.ListAllContentTypes("blocktypes")
+                .OrderBy(p => !string.IsNullOrEmpty(p.DisplayName) ? p.DisplayName : p.Name)
                 .Select(t => new SelectListItem { Text = t.LocalizedFullName, Value = t.ID.ToString() });
+
             model.AllPageTypes = ContentTypeUsageHelper.ListAllContentTypes("pagetypes")
+                .OrderBy(p => !string.IsNullOrEmpty(p.DisplayName) ? p.DisplayName : p.Name)
                 .Select(t => new SelectListItem { Text = t.LocalizedFullName, Value = t.ID.ToString() });
 
             return View(model);
@@ -44,26 +47,32 @@ namespace ContentTypeUsage.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public JsonResult GetInstances(int contentTypeId, int page, int pageSize = 10, string query = "")
+        public JsonResult GetInstances(int contentTypeId, int page, int pageSize = 20, string query = "")
         {
             try
             {
-                var result = ContentTypeUsageHelper.ListAllContentOfType(contentTypeId, page, pageSize, query, out var total);
+                var result = ContentTypeUsageHelper.ListAllContentOfType(contentTypeId, query).ToList();
+                var selectedItems = result.Select(t => new
+                {
+                    Id = t.ContentLink.ID,
+                    Name = t.Name,
+                    ViewLink = ContentTypeUsageHelper.ResolveViewUrl(t),
+                    EditLink = ContentTypeUsageHelper.ResolveEditUrl(t),
+                    IsBlockType = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType),
+                    Usages = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType)
+                        ? ContentTypeUsageHelper.GetContentUsageCount(t)
+                        : 1
+                }).OrderByDescending(x => x.Usages)
+                  .Skip((page - 1) * pageSize).Take(pageSize);
 
                 return Json(new
                 {
                     status = true,
                     page,
                     pageSize,
-                    total,
-                    items = result.Select(t => new
-                    {
-                        Id = t.ContentLink.ID,
-                        t.Name,
-                        ViewLink = ContentTypeUsageHelper.ResolveViewUrl(t),
-                        EditLink = ContentTypeUsageHelper.ResolveEditUrl(t),
-                        IsBlockType = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType)
-                    })
+                    total = result.Count,
+                    items = selectedItems,
+                    isSelectedContentTypeBlockType = ContentTypeUsageHelper.IsContentTypeBlockType(contentTypeId)
                 });
             }
             catch (Exception ex)
@@ -86,26 +95,30 @@ namespace ContentTypeUsage.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("[action]")]
-        public JsonResult GetReferences(int blockId, int page, int pageSize = 10, string query = "")
+        public JsonResult GetReferences(int blockId, int page, int pageSize = 20, string query = "")
         {
             try
             {
-                var result = ContentTypeUsageHelper.ListAllReferenceOfContentInstance(blockId, page, pageSize, query, out var total);
+                var result = ContentTypeUsageHelper.ListAllReferenceOfContentInstance(blockId, query).ToList();
+
+                var selectedItems = result.Select(t => new
+                {
+                    Id = t.OwnerID.ID,
+                    Name = t.OwnerName + " (" + t.OwnerLanguage.Name + ")",
+                    ViewLink = ContentTypeUsageHelper.ResolveViewUrl(t),
+                    EditLink = ContentTypeUsageHelper.ResolveEditUrl(t),
+                    IsBlockType = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType)
+                }).Skip((page - 1) * pageSize)
+                  .Take(pageSize); ;
 
                 return Json(new
                 {
                     status = true,
                     page,
                     pageSize,
-                    total,
-                    items = result.Select(t => new
-                    {
-                        Id = t.ContentLink.ID,
-                        t.Name,
-                        ViewLink = ContentTypeUsageHelper.ResolveViewUrl(t),
-                        EditLink = ContentTypeUsageHelper.ResolveEditUrl(t),
-                        IsBlockType = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType)
-                    })
+                    total = result.Count,
+                    items = selectedItems,
+                    isSelectedContentTypeBlockType = false
                 });
             }
             catch (Exception ex)
