@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ContentTypeUsage")]
-[assembly: AssemblyDescription("This add-on provides an admin tool for locating content instances base on types.\r\nThis version support Optimizely CMS 12.")]
+[assembly: AssemblyDescription("This add-on provides an admin tool for locating content instances base on types.\r\nThis version supports Optimizely CMS 13 and .NET 10.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("ContentTypeUsage")]

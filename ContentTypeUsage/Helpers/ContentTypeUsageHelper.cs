@@ -1,8 +1,8 @@
 ﻿using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
-using EPiServer.Framework.Modules.Internal;
 using EPiServer.ServiceLocation;
+using EPiServer.Shell;
 using EPiServer.Web.Routing;
 using System;
 using System.Collections.Generic;
@@ -17,22 +17,17 @@ namespace ContentTypeUsage.Helpers
     {
         private static readonly IContentTypeRepository ContentTypeRepo = ServiceLocator.Current.GetInstance<IContentTypeRepository>();
         private static readonly IContentRepository ContentRepo = ServiceLocator.Current.GetInstance<IContentRepository>();
-        private static readonly IAdministrationSettingsService SettingsService = ServiceLocator.Current.GetInstance<IAdministrationSettingsService>();
         private static readonly IContentModelUsage ContentUsage = ServiceLocator.Current.GetInstance<IContentModelUsage>();
         private static readonly IUrlResolver UrlResolver = ServiceLocator.Current.GetInstance<IUrlResolver>();
 
         /// <summary>
-        /// Lists all content types available in the site base on group name (AdministrationSetttings group)
+        /// Lists all content types available in the site base on base type (either Block or Page)
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<ContentType> ListAllContentTypes(string groupName)
+        public static IEnumerable<ContentType> ListAllContentTypes(ContentTypeBase baseType)
         {
             // Only list the types with specified group name
-            var contentTypes = ContentTypeRepo.List().Where(t =>
-             {
-                 var settings = SettingsService.GetAttribute(t);
-                 return settings.Visible && string.Equals(settings.GroupName.ToLower(), groupName, StringComparison.OrdinalIgnoreCase);
-             }).OrderByDescending(p => SettingsService.GetAttribute(p).GroupName);
+            var contentTypes = ContentTypeRepo.List().Where(t => t.Base == baseType);
 
             return contentTypes;
         }
@@ -122,8 +117,8 @@ namespace ContentTypeUsage.Helpers
         public static string ResolveEditUrl(IContent content)
         {
             var language = content is ILocalizable localizable ? localizable.Language.Name : null;
-            return language == null ? $"{ModuleResourceResolver.Instance.ResolvePath("CMS", null)}#context=epi.cms.contentdata:///{content.ContentLink}"
-                : $"{ModuleResourceResolver.Instance.ResolvePath("CMS", null)}?language={language}#context=epi.cms.contentdata:///{content.ContentLink}";
+            return language == null ? $"{Paths.ProtectedRootPath}CMS/#context=epi.cms.contentdata:///{content.ContentLink}"
+                : $"{Paths.ProtectedRootPath}CMS/?language={language}#context=epi.cms.contentdata:///{content.ContentLink}";
         }
 
         /// <summary>
@@ -134,7 +129,7 @@ namespace ContentTypeUsage.Helpers
         public static string ResolveEditUrl(ReferenceInformation reference)
         {
             var language = reference.OwnerLanguage.Name;
-            return $"{ModuleResourceResolver.Instance.ResolvePath("CMS", null)}?language={language}#context=epi.cms.contentdata:///{reference.OwnerID}";
+            return $"{Paths.ProtectedRootPath}CMS/?language={language}#context=epi.cms.contentdata:///{reference.OwnerID}";
         }
 
         /// <summary>
