@@ -1,4 +1,3 @@
-[![NuGet](https://img.shields.io/nuget/v/Eshn.ContentTypeUsage.svg?style=flat)](https://www.nuget.org/packages/Eshn.ContentTypeUsage/)
 [![Platform](https://img.shields.io/badge/Optimizely-CMS%2013-orange.svg?style=flat)](https://world.optimizely.com/)
 [![.NET](https://img.shields.io/badge/.NET-10-blueviolet.svg?style=flat)](https://dotnet.microsoft.com/)
 
