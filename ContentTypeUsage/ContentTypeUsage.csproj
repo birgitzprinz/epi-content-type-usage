@@ -17,10 +17,11 @@
     <PackageProjectUrl>https://github.com/birgitzprinz/epi-content-type-usage</PackageProjectUrl>
     <RepositoryUrl>https://github.com/birgitzprinz/epi-content-type-usage</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <!-- NuspecFile must only be set when TargetFramework is resolved; otherwise the
-         NuGet inner-build re-evaluates the project with an empty TargetFramework which
-         causes NETSDK1013 during Visual Studio design-time builds. -->
-    <NuspecFile Condition="'$(TargetFramework)' != ''">ContentTypeUsage.nuspec</NuspecFile>
+    <!-- NuspecFile must only be set when a TargetFramework is resolved.
+         For multi-TFM projects the outer pack build has TargetFramework empty but
+         TargetFrameworks set; inner builds have TargetFramework set.
+         VS design-time evaluations have both empty, which would cause NETSDK1013. -->
+    <NuspecFile Condition="'$(TargetFramework)' != '' OR '$(TargetFrameworks)' != ''">ContentTypeUsage.nuspec</NuspecFile>
   </PropertyGroup>
   <ItemGroup>
     <Content Remove="module.config" />
@@ -38,13 +39,13 @@
   <ItemGroup>
     <PackageReference Include="EPiServer.CMS.UI.Core" Version="12.4.0" />
   </ItemGroup>
-  <Target Name="NpmInstall" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildThisFileDirectory)node_modules')">
+  <Target Name="NpmInstall" BeforeTargets="BeforeBuild" Condition="'$(TargetFramework)' == 'net6.0' AND !Exists('$(MSBuildThisFileDirectory)node_modules')">
     <Exec Command="npm install" WorkingDirectory="$(MSBuildThisFileDirectory)" />
   </Target>
-  <Target Name="NpmBuild" BeforeTargets="BeforeBuild">
+  <Target Name="NpmBuild" BeforeTargets="BeforeBuild" Condition="'$(TargetFramework)' == 'net6.0'">
     <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)" />
   </Target>
-  <Target Name="CreateModuleZip" AfterTargets="Build">
+  <Target Name="CreateModuleZip" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net6.0'">
     <Exec Command="pwsh -NonInteractive -File &quot;$(MSBuildProjectDirectory)\Create-ModuleZip.ps1&quot; -Version &quot;$(Version)&quot; -ProjectDir &quot;$(MSBuildProjectDirectory)&quot;" WorkingDirectory="$(MSBuildProjectDirectory)" />
   </Target>
 </Project>
