@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<!--
+  DEVELOPER PREVIEW
+  =================
+  Stand-alone HTML that mirrors the output of Index.cshtml without a running
+  Optimizely server.  Open directly in a browser from the project folder:
+
+    start ContentTypeUsage\preview.html
+
+  Requirements:
+    - Run  npm run build  (or  npm run build:dev  for source-maps) first so
+      ClientResources/Scripts/dist/app.bundle.js exists.
+    - An internet connection for the Bootstrap CDN link.
+
+  The mock fetch() below intercepts /ContentTypeUsage/GetInstances and
+  /ContentTypeUsage/GetReferences and returns the sample data defined further
+  down in this file.  Edit MOCK_INSTANCES / MOCK_REFERENCES to test different
+  scenarios (pagination, empty results, errors, etc.).
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Content Type Usage — Developer Preview</title>
+
+  <!-- Bootstrap 5.3.3 (same version as Index.cshtml) -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+
+  <!-- Module stylesheet (same path as Paths.ToClientResource resolves to) -->
+  <link href="ClientResources/Styles/style.css" rel="stylesheet" />
+
+  <!-- ── Preview banner ────────────────────────────────────────────────── -->
+  <style>
+    .preview-banner {
+      background: #fff3cd;
+      border-bottom: 1px solid #ffc107;
+      color: #664d03;
+      font-size: .8125rem;
+      padding: .4rem 1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Visual hint that this is a preview, not the real CMS page -->
+  <div class="preview-banner">
+    🔍 <strong>Developer Preview</strong> — fetch() is mocked.
+    Edit <code>MOCK_INSTANCES</code> / <code>MOCK_REFERENCES</code>
+    in this file to test different data scenarios.
+  </div>
+
+  <!-- Mount point — mirrors the <div> emitted by Index.cshtml.
+       Data attributes are populated by the inline script below. -->
+  <div id="content-type-usage-root"></div>
+
+  <script>
+    // ════════════════════════════════════════════════════════════════════════
+    // MOCK DATA  — edit these objects to preview different UI states
+    // ════════════════════════════════════════════════════════════════════════
+
+    /** Returned by GET /ContentTypeUsage/GetInstances */
+    const MOCK_INSTANCES = {
+      status: true,
+      page: 1,
+      pageSize: 20,
+      total: 1,
+      items: [
+        {
+          id: 219776,
+          name: "Wish List Settings",
+          viewLink: null,
+          editLink: "/TRMAdmin/CMS/?language=en-GB#context=epi.cms.contentdata:///219776",
+          isBlockType: true,
+          usages: 1
+        }
+      ],
+      isSelectedContentTypeBlockType: true
+    };
+
+    /** Returned by GET /ContentTypeUsage/GetReferences
+     *  Shown when the "References" link is clicked for a block instance. */
+    const MOCK_REFERENCES = {
+      status: true,
+      page: 1,
+      pageSize: 20,
+      total: 2,
+      items: [
+        {
+          id: 100,
+          name: "Home Page (en-GB)",
+          viewLink: "https://example.com/",
+          editLink: "/TRMAdmin/CMS/?language=en-GB#context=epi.cms.contentdata:///100",
+          isBlockType: false
+        },
+        {
+          id: 101,
+          name: "Product Listing Page (en-GB)",
+          viewLink: "https://example.com/products",
+          editLink: "/TRMAdmin/CMS/?language=en-GB#context=epi.cms.contentdata:///101",
+          isBlockType: false
+        }
+      ],
+      isSelectedContentTypeBlockType: false
+    };
+
+    // ════════════════════════════════════════════════════════════════════════
+    // LABELS  — mirrors the JsonSerializer.Serialize(...) block in Index.cshtml,
+    //           values sourced from EmbeddedLangFiles/Plugins_en.xml
+    // ════════════════════════════════════════════════════════════════════════
+    const LABELS = {
+      displayName:                 "Content Type Usage",
+      description:                 "Use the filter button below to search for usages of selected content type. System and media content types are not displayed in this plugin.",
+      contentType:                 "Content Type",
+      filter:                      "Filter",
+      search:                      "Search",
+      close:                       "Close",
+      contentId:                   "Content ID",
+      usages:                      "Usages",
+      name:                        "Name",
+      links:                       "Links",
+      edit:                        "Edit",
+      view:                        "View",
+      references:                  "References",
+      editTooltip:                 "Link to this item in EPiServer Edit mode",
+      viewTooltip:                 "Link to this item as a front-end page",
+      referencesTooltip:           "View list of contents linked to this block",
+      contentInstanceSuggestions:  "There are currently <b>{0}</b> instance(s) of <b>{1}</b>.",
+      modalDialogHeader:           "Reference(s) of block <b>\"{0}\"</b> with ID <b>\"{1}\"</b>.",
+      contentReferencesSuggestions:"There are currently <b>{0}</b> content(s) linked to this block.",
+      searchSuggestions:           "Your search for <b>{0}</b> returned <b>{1}</b> items.",
+      itemsCount:                  "Displaying items {0}-{1} of {2}",
+      pageTypesHeading:            "Page Types",
+      blockTypesHeading:           "Block Types",
+      selectPlaceholder:           "-- Select --"
+    };
+
+    // ════════════════════════════════════════════════════════════════════════
+    // CONTENT TYPE LISTS — shown in the dropdown, mirrors model.AllPageTypes
+    //                      and model.AllBlockTypes from the controller
+    // ════════════════════════════════════════════════════════════════════════
+    const PAGE_TYPES = [
+      { value: "1", text: "Standard Page" },
+      { value: "2", text: "Article Page" },
+      { value: "3", text: "Landing Page" }
+    ];
+
+    const BLOCK_TYPES = [
+      { value: "10", text: "Wish List Settings" },
+      { value: "11", text: "Hero Block" },
+      { value: "12", text: "Teaser Block" }
+    ];
+
+    // ════════════════════════════════════════════════════════════════════════
+    // WIRE UP DATA ATTRIBUTES on the mount point
+    // The index.jsx entry reads: JSON.parse(container.dataset.pageTypes)
+    // ════════════════════════════════════════════════════════════════════════
+    const root = document.getElementById("content-type-usage-root");
+    root.dataset.pageTypes  = JSON.stringify(PAGE_TYPES);
+    root.dataset.blockTypes = JSON.stringify(BLOCK_TYPES);
+    root.dataset.labels     = JSON.stringify(LABELS);
+
+    // ════════════════════════════════════════════════════════════════════════
+    // MOCK fetch()  — intercepts the two API endpoints used by App.jsx
+    // ════════════════════════════════════════════════════════════════════════
+    const _realFetch = window.fetch.bind(window);
+    window.fetch = function mockFetch(url, init) {
+      const u = String(url);
+
+      if (u.includes("/ContentTypeUsage/GetInstances")) {
+        console.log("[preview] mock GET", u, "→ MOCK_INSTANCES");
+        return Promise.resolve({
+          json: () => Promise.resolve(structuredClone(MOCK_INSTANCES))
+        });
+      }
+
+      if (u.includes("/ContentTypeUsage/GetReferences")) {
+        console.log("[preview] mock GET", u, "→ MOCK_REFERENCES");
+        return Promise.resolve({
+          json: () => Promise.resolve(structuredClone(MOCK_REFERENCES))
+        });
+      }
+
+      // Any other request falls through to the real network
+      return _realFetch(url, init);
+    };
+  </script>
+
+  <!-- React bundle — same path as Paths.ToClientResource resolves to.
+       Run  npm run build  (or  npm run build:dev) before opening this file. -->
+  <script src="ClientResources/Scripts/dist/app.bundle.js"></script>
+</body>
+</html>

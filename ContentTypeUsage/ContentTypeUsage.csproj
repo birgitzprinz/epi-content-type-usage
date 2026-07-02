@@ -1,13 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-  </PropertyGroup>
-  <PropertyGroup>
     <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>bin\</OutputPath>
     <PackageId>Eshn.ContentTypeUsage</PackageId>
-    <Version>2.2.0.0</Version>
+    <Version>2.3.0</Version>
     <PackageTags>ContentTypeUsage</PackageTags>
     <Description>
       This is an Optimizely CMS admin plugin to help with locating contents base on types.
@@ -15,18 +13,17 @@
     </Description>
     <Authors>Linh Doan Cuu</Authors>
     <IsPackable>True</IsPackable>
-    <PackageReleaseNotes>First version for Optimizely CMS 12</PackageReleaseNotes>
+    <PackageReleaseNotes>Replaced jQuery/MicroModal/Chosen front-end stack with React 18 + Bootstrap 5 + Webpack 5</PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/birgitzprinz/epi-content-type-usage</PackageProjectUrl>
     <RepositoryUrl>https://github.com/birgitzprinz/epi-content-type-usage</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageTags>ContentTypeUsage</PackageTags>
-    <NuspecFile>ContentTypeUsage.nuspec</NuspecFile>
+    <!-- NuspecFile must only be set when TargetFramework is resolved; otherwise the
+         NuGet inner-build re-evaluates the project with an empty TargetFramework which
+         causes NETSDK1013 during Visual Studio design-time builds. -->
+    <NuspecFile Condition="'$(TargetFramework)' != ''">ContentTypeUsage.nuspec</NuspecFile>
   </PropertyGroup>
   <ItemGroup>
     <Content Remove="module.config" />
-    <Content Include="ContentTypeUsage.zip">
-      <PackagePath>contentFiles\any\any\modules\_protected\ContentTypeUsage\</PackagePath>
-    </Content>
     <Content Include="readme.txt">
       <PackagePath>readme.txt</PackagePath>
     </Content>
@@ -43,5 +40,17 @@
     <Content Include="Eshn.ContentTypeUsage.targets">
       <PackagePath>build\net5.0\</PackagePath>
     </Content>
+    <Content Include="Eshn.ContentTypeUsage.targets">
+      <PackagePath>build\net6.0\</PackagePath>
+    </Content>
   </ItemGroup>
+  <Target Name="NpmInstall" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildThisFileDirectory)node_modules')">
+    <Exec Command="npm install" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+  </Target>
+  <Target Name="NpmBuild" BeforeTargets="BeforeBuild">
+    <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)" />
+  </Target>
+  <Target Name="CreateModuleZip" AfterTargets="Build">
+    <Exec Command="pwsh -NonInteractive -File &quot;$(MSBuildProjectDirectory)\Create-ModuleZip.ps1&quot; -Version &quot;$(Version)&quot; -ProjectDir &quot;$(MSBuildProjectDirectory)&quot;" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
 </Project>

@@ -54,15 +54,15 @@ namespace ContentTypeUsage.Controllers
                 var result = ContentTypeUsageHelper.ListAllContentOfType(contentTypeId, query).ToList();
                 var selectedItems = result.Select(t => new
                 {
-                    Id = t.ContentLink.ID,
-                    Name = t.Name,
-                    ViewLink = ContentTypeUsageHelper.ResolveViewUrl(t),
-                    EditLink = ContentTypeUsageHelper.ResolveEditUrl(t),
-                    IsBlockType = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType),
-                    Usages = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType)
+                    id = t.ContentLink.ID,
+                    name = t.Name,
+                    viewLink = ContentTypeUsageHelper.ResolveViewUrl(t),
+                    editLink = ContentTypeUsageHelper.ResolveEditUrl(t),
+                    isBlockType = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType),
+                    usages = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType)
                         ? ContentTypeUsageHelper.GetContentUsageCount(t)
                         : 1
-                }).OrderByDescending(x => x.Usages)
+                }).OrderByDescending(x => x.usages)
                   .Skip((page - 1) * pageSize).Take(pageSize);
 
                 return Json(new
@@ -103,11 +103,11 @@ namespace ContentTypeUsage.Controllers
 
                 var selectedItems = result.Select(t => new
                 {
-                    Id = t.OwnerID.ID,
-                    Name = t.OwnerName + " (" + t.OwnerLanguage.Name + ")",
-                    ViewLink = ContentTypeUsageHelper.ResolveViewUrl(t),
-                    EditLink = ContentTypeUsageHelper.ResolveEditUrl(t),
-                    IsBlockType = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType)
+                    id = t.OwnerID.ID,
+                    name = t.OwnerName + " (" + t.OwnerLanguage.Name + ")",
+                    viewLink = ContentTypeUsageHelper.ResolveViewUrl(t),
+                    editLink = ContentTypeUsageHelper.ResolveEditUrl(t),
+                    isBlockType = typeof(BlockData).IsAssignableFrom(t.GetType().BaseType)
                 }).Skip((page - 1) * pageSize)
                   .Take(pageSize); ;
 
