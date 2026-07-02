@@ -24,6 +24,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Remove="module.config" />
+    <Content Remove="Eshn.ContentTypeUsage.targets" />
     <Content Include="readme.txt">
       <PackagePath>readme.txt</PackagePath>
     </Content>
@@ -31,18 +32,11 @@
   <ItemGroup>
     <EmbeddedResource Include="EmbeddedLangFiles\Plugins_en.xml" />
     <None Include="module.config" />
+    <None Include="Eshn.ContentTypeUsage.targets" />
     <Content Include="ContentTypeUsage.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="EPiServer.CMS.UI.Core" Version="12.4.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Eshn.ContentTypeUsage.targets">
-      <PackagePath>build\net5.0\</PackagePath>
-    </Content>
-    <Content Include="Eshn.ContentTypeUsage.targets">
-      <PackagePath>build\net6.0\</PackagePath>
-    </Content>
   </ItemGroup>
   <Target Name="NpmInstall" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildThisFileDirectory)node_modules')">
     <Exec Command="npm install" WorkingDirectory="$(MSBuildThisFileDirectory)" />
