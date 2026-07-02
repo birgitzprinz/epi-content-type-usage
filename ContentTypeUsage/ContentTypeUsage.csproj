@@ -5,7 +5,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>bin\</OutputPath>
     <PackageId>Eshn.ContentTypeUsage</PackageId>
-    <Version>2.3.0</Version>
+    <Version>2.3.1</Version>
     <PackageTags>ContentTypeUsage</PackageTags>
     <Description>
       This is an Optimizely CMS admin plugin to help with locating contents base on types.
