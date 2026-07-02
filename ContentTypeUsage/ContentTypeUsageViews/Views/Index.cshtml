@@ -57,9 +57,8 @@
 </head>
 <body class="epi-contentTypeUsage">
     @Html.CreatePlatformNavigationMenu()
-    <platform-navigation />
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div class="epi-pn-navigation--fixed-adjust" @Html.ApplyPlatformNavigation()>
+    <div @Html.ApplyPlatformNavigation()>
         <div class="content-area-container">
             <div id="content-type-usage-root" class="container-fluid"
                  data-page-types="@pageTypesJson"

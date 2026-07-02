@@ -1,4 +1,4 @@
-﻿Eshn.ContentTypeUsage v2.3.1 (CMS 12 branch)
+﻿Eshn.ContentTypeUsage v2.3.2 (CMS 12 branch)
 
 
 REQUIREMENTS
@@ -72,6 +72,9 @@ To build and pack the NuGet package, run from the ContentTypeUsage project direc
 
 RELEASE NOTES
 =============
+
+v2.3.2
+  - Fixed CSS styling
 
 v2.3.1
   - Updated Index.cshtml
